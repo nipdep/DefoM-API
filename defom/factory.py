@@ -11,6 +11,7 @@ from bson import json_util, ObjectId
 from datetime import datetime, timedelta
 
 from defom.api.users import User
+from defom.api.forests import RegisterForest
 
 
 class MongoJsonEncoder(JSONEncoder):
@@ -47,5 +48,6 @@ def create_api():
 
     api.add_resource(Fac, '/enter')
     api.add_resource(User, '/user/<string:name>')
+    api.add_resource(RegisterForest, '/forest/register')
 
     return app
