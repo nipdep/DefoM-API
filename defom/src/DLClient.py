@@ -88,7 +88,7 @@ class ClassiModel(object):
     def inference(self, images):
         threshold = 0.98
         images = self.preprocess_resize(images)
-        images = images/255
+        # images = images/255
         results = (self.model.predict(images)>threshold).astype('int')
         
         class_result = []
@@ -220,7 +220,7 @@ class MaskModel(object):
     def inference(self, images):
         threshold = 0.24
         images = self.preprocess_resize(images)
-        images = images/255
+        # images = images/255
         results = (self.model.predict(images)>threshold).astype('int')
 
         return results

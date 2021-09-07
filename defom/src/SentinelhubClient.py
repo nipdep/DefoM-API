@@ -44,7 +44,7 @@ class SentilhubClient(object):
 
         return bbox_coords_list
 
-    def get_forest(self):
+    def get_forest(self, geo_json):
 
         evalscript_true_color = """
             //VERSION=3
@@ -62,9 +62,6 @@ class SentilhubClient(object):
                 return [sample.B04, sample.B03, sample.B02];
             }
         """
-
-        file = self.get_json()
-        geo_json = read_data(file)
         full_geometry = Geometry(geo_json['features'][0]['geometry'], crs=CRS.WGS84)
 
         request = SentinelHubRequest(
