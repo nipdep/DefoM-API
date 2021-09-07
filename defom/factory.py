@@ -9,9 +9,11 @@ from flask_restful import Resource, Api
 
 from bson import json_util, ObjectId
 from datetime import datetime, timedelta
+from apscheduler.schedulers.background import BackgroundScheduler
 
 from defom.api.users import User
 from defom.api.forests import RegisterForest
+from defom.api.scheduler import GetTiles, save_tiles_daily, make_class_inf_daily, MakeClassInf, set_latest_threat_daily
 
 
 class MongoJsonEncoder(JSONEncoder):
@@ -41,6 +43,12 @@ def create_api():
     #         'user': identity,
     #     }
 
+    scheduler = BackgroundScheduler()
+    scheduler.add_job(func=save_tiles_daily, trigger="cron", hour='10-11')
+    scheduler.add_job(func=make_class_inf_daily, trigger="cron", hour='11-12')
+    scheduler.add_job(func=set_latest_threat_daily, trigger="cron", hour='12-13')
+
+
     app.config['JWT'] = jwt
     app.config['BCRYPT'] = Bcrypt(app)
     # app.config['CLAIMS_LOADER'] = add_claims
@@ -49,5 +57,7 @@ def create_api():
     api.add_resource(Fac, '/enter')
     api.add_resource(User, '/user/<string:name>')
     api.add_resource(RegisterForest, '/forest/register')
+    api.add_resource(GetTiles, '/gettiles')  ## testing resources
+    api.add_resource(MakeClassInf, '/classinf')
 
     return app
