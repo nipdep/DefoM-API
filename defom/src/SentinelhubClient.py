@@ -5,12 +5,13 @@ from sentinelhub import OsmSplitter, BBox, read_data, CRS, Geometry, SentinelHub
 class SentilhubClient(object):
 
     def __init__(self):
-        self.config = SHConfig()
-        self.config()
+        config = SHConfig()
+        self.config = config
+        self.set_config()
 
         pass
 
-    def config(self):
+    def set_config(self):
         if not self.config.sh_client_id or not self.config.sh_client_secret:
             self.config.instance_id = '464e0857-a72d-4c5d-b0d5-a96b724301d7'
             self.config.sh_client_id = '2a713948-9158-4185-85df-4f0d271b644d'
@@ -23,18 +24,25 @@ class SentilhubClient(object):
     def get_json(self):
         pass
 
-    def split_forest_area(self):
+    def split_forest_area(self, json_data):
         """
         INPUT:
             forest_map : TODO
         OUTPUT:
             list of BBOX objects in the form of [((lat1, lon1), (lat2, lon2)), ...]
         """
-        file = self.get_json()
-        geo_json = read_data(file)
-        forest_area = shape(geo_json['features'][0]['geometry'])
+        forest_area = shape(json_data['features'][0]['geometry'])
         osm_splitter = OsmSplitter([forest_area], CRS.WGS84, zoom_level=14)
-        return osm_splitter.get_bbox_list()
+        bbox_list = osm_splitter.get_bbox_list()
+        bbox_coords_list = []
+
+        id = 0
+        for bbox in bbox_list:
+            bbox_poly = bbox.get_polygon()
+            bbox_coords_list.append({'tile_id' : id, 'bbox':(bbox_poly[0], bbox_poly[2]), 'infered_threat_class':[]})
+            id+=1
+
+        return bbox_coords_list
 
     def get_forest(self):
 
@@ -119,7 +127,7 @@ class SentilhubClient(object):
             input_data=[
                 SentinelHubRequest.input_data(
                     data_collection=DataCollection.SENTINEL2_L1C,
-                    time_interval=('2020-06-12', '2020-06-13'),
+                    time_interval=(start_date, end_date),
                     mosaicking_order='leastCC'
                 )
             ],
@@ -132,4 +140,5 @@ class SentilhubClient(object):
         )
         true_color_imgs = request_true_color.get_data()
         return true_color_imgs
+
 
