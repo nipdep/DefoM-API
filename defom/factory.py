@@ -13,7 +13,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 
 from defom.api.users import User
 from defom.api.forests import RegisterForest
-from defom.api.scheduler import GetTiles, save_tiles_daily, make_class_inf_daily, MakeClassInf, set_latest_threat_daily
+from defom.api.scheduler import GetTiles, save_tiles_daily, make_class_inf_daily, MakeClassInf, set_latest_threat_daily, set_forest_view
 
 
 class MongoJsonEncoder(JSONEncoder):
@@ -47,7 +47,7 @@ def create_api():
     scheduler.add_job(func=save_tiles_daily, trigger="cron", hour='10-11')
     scheduler.add_job(func=make_class_inf_daily, trigger="cron", hour='11-12')
     scheduler.add_job(func=set_latest_threat_daily, trigger="cron", hour='12-13')
-
+    scheduler.add_job(func=set_forest_view, trigger="cron", hour='13-14')
 
     app.config['JWT'] = jwt
     app.config['BCRYPT'] = Bcrypt(app)

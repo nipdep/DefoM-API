@@ -115,3 +115,10 @@ def forests_bulkWrite(update_requests):
         db.forests.bulk_write(update_requests, ordered=False)
     except BulkWriteError as bwe:
         pprint(bwe.details)
+
+def get_forests_pred_bnd():
+    try:
+        forests = list(db.forests.find({}, {'boundary' : 1, 'forest_tiles.infered_threat_class':1}))
+        return forests
+    except Exception as e:
+        return e

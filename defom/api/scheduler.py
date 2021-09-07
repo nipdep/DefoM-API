@@ -11,7 +11,7 @@ import pickle
 from pymongo import UpdateOne
 
 from defom.api.utils import expect
-from defom.db import get_all_forest_tiles, save_forestTile, get_forest_ids, get_latest_forest_tiles, forestTile_bulkWrite, forests_bulkWrite, get_all_forests_tile_details
+from defom.db import get_all_forest_tiles, save_forestTile, get_forest_ids, get_latest_forest_tiles, forestTile_bulkWrite, forests_bulkWrite, get_all_forests_tile_details, get_forests_pred_bnd
 from defom.src.SentinelhubClient import SentilhubClient
 from defom.src.DLClient import ClassiModel, MaskModel
 
@@ -37,7 +37,8 @@ class GetTiles(Resource):
 
                     try:
                         sat_image = sentinel_client.get_tile(coords, 10, start_date, end_date)
-                        binary_image = pickle.dumps(sat_image[0])
+                        preprocessed_image = np.clip(sat_image[0]*3.5/255, 0,1)
+                        binary_image = pickle.dumps(preprocessed_image)
                     except Exception as e:
                         return make_response(jsonify({'error': str(e)}), 400)
 
@@ -78,7 +79,8 @@ def save_tiles_daily():
 
                 try:
                     sat_image = sentinel_client.get_tile(coords, 10, start_date, end_date)
-                    binary_image = pickle.dumps(sat_image[0])
+                    preprocessed_image = np.clip(sat_image[0]*3.5/255, 0, 1)
+                    binary_image = pickle.dumps(preprocessed_image)
                 except Exception as e:
                     return make_response(jsonify({'error': str(e)}), 400)
 
@@ -185,7 +187,7 @@ def set_latest_threat_daily():
 
             update_requests = []
             for i in updated_threat_dict:
-                query = UpdateOne({'_id': forest_id, 'forest_tiles.tile_id':i}, {'$set' : {'forest_tiles.$.infered_threat_class' : updated_threat_dict[i]}})
+                query = UpdateOne({'_id': forest_id, 'forest_tiles.tile_id':i}, {'$set' : {'forest_tiles.$.infered_threat_class' : updated_threat_dict[i], 'inference_updated_date' : today}})
                 update_requests.append(query)
 
             forests_bulkWrite(update_requests)
@@ -193,7 +195,25 @@ def set_latest_threat_daily():
             return make_response(jsonify({'error': str(e)}), 400)
     
 ## set entire forest view if any new threat appears
+def set_forest_view():
+    today = datetime.combine(date.today(), datetime.min.time())
+    sentinel_client = SentilhubClient()
+    try:
+        forests = get_forests_pred_bnd()
+        update_requests = []
+        for forest in forests:
+            forest_id = forest['_id']
+            forest_boundary = forest['boundary']
+            updatable = any(i['infered_threat_class'] != [] for i in forest['forest_tiles'])
+            if updatable:
+                forest_view = sentinel_client.get_forest(forest_boundary)
+                preprocessed_view = np.clip(forest_view* 3.5/255, 0,1)
+                bin_image = pickle.dumps(preprocessed_view)
+                update_requests.append(UpdateOne({'_id' : forest_id}, {'$set' : {'entire_forest_view' : bin_image, 'forest_view_updated_date' : today}}))
 
+        forests_bulkWrite(update_requests)
+    except Exception as e:
+            return make_response(jsonify({'error': str(e)}), 400)
 ## daily threat location mask prediction and update in forest documents
 
         
