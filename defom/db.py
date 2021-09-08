@@ -122,3 +122,17 @@ def get_forests_pred_bnd():
         return forests
     except Exception as e:
         return e
+
+def get_forest_tile_inf():
+    try:
+        forests = list(db.forests.find({}, {'forest_tiles.tile_id' : 1,'forest_tiles.infered_threat_class':1}))
+        return forests
+    except Exception as e:
+        return e
+
+def get_tile_view_id(forest_id, tile_ids, date):
+    try:
+        acc_tiles = list(db.forestTiles.find({"forest_id" : forest_id, "tile_id" : {'$in' : tile_ids}, 'save_time':date}, {'image':1, 'tile_id':1}))
+        return acc_tiles
+    except Exception as e:
+        return e

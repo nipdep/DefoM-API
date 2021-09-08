@@ -210,11 +210,10 @@ class MaskModel(object):
 
         if len(images.shape) == 3:
             images = images[np.newaxis, ...]
-        else:
-            pre_list = []
-            for i in range(images.shape[0]):
-                pre_list.append(func(images[i, ...]))
-            resized_images = np.array(pre_list)
+        pre_list = []
+        for i in range(images.shape[0]):
+            pre_list.append(func(images[i, ...]))
+        resized_images = np.array(pre_list)
         return resized_images
 
     def inference(self, images):

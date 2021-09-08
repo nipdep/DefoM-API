@@ -1,8 +1,7 @@
 
 from flask import make_response, request, jsonify
 from flask_restful import Resource
-from bson.json_util import dumps, RELAXED_JSON_OPTIONS
-import json
+
 
 from datetime import date, datetime, timedelta
 import numpy as np
@@ -10,8 +9,7 @@ import pickle
 
 from pymongo import UpdateOne
 
-from defom.api.utils import expect
-from defom.db import get_all_forest_tiles, save_forestTile, get_forest_ids, get_latest_forest_tiles, forestTile_bulkWrite, forests_bulkWrite, get_all_forests_tile_details, get_forests_pred_bnd
+from defom.db import get_all_forest_tiles, save_forestTile, get_forest_ids, get_latest_forest_tiles, forestTile_bulkWrite, forests_bulkWrite, get_all_forests_tile_details, get_forests_pred_bnd, get_forest_tile_inf, get_tile_view_id
 from defom.src.SentinelhubClient import SentilhubClient
 from defom.src.DLClient import ClassiModel, MaskModel
 
@@ -214,10 +212,55 @@ def set_forest_view():
         forests_bulkWrite(update_requests)
     except Exception as e:
             return make_response(jsonify({'error': str(e)}), 400)
+
 ## daily threat location mask prediction and update in forest documents
+def input_creator(image1, image2):
+    image1_ch1, image2_ch1 = image1[:, :, 0], image2[:, :, 0]
+    image1_ch1, image2_ch1 = image1_ch1[np.newaxis, ...], image2_ch1[np.newaxis, ...]
+    inf_img = np.vstack((image1_ch1, image2_ch1))
+    inf_img = np.moveaxis(inf_img, (0,1,2), (2,0,1))
+    return inf_img
 
-        
+def set_mask_daily():
+    today = datetime.combine(date.today(), datetime.min.time())
+    yesterday = datetime.combine(date.today()-timedelta(days=1), datetime.min.time())
+    mask_model = MaskModel.getInstance()
 
+    try:
+        forests = get_forest_tile_inf()
+        for forest in forests:
+            forest_id = forest['_id']
+            accessing_tiles = [x['tile_id'] for x in forest['forest_tiles'] if x['infered_threat_class'] != []]
+
+            acc_td_tiles = get_tile_view_id(forest_id, accessing_tiles, today)
+            acc_ys_tiles = get_tile_view_id(forest_id, accessing_tiles, yesterday)
+
+            image_td_dict = {}
+            for tile in acc_td_tiles:
+                image_td_dict[tile['tile_id']] = pickle.loads(tile['image'])
+
+            image_ys_dict = {}
+            for tile in acc_ys_tiles:
+                image_ys_dict[tile['tile_id']] = pickle.loads(tile['image'])
+
+            inf_image_dict = {}
+            for i in image_td_dict:
+                inf_image_dict[i] = input_creator(image_td_dict[i], image_ys_dict[i])
+                    
+            inf_images = np.array(list(inf_image_dict.values()))
+
+            inferences = mask_model.inference(inf_images)
+
+            tile_ids = list(image_td_dict.keys())
+
+            update_requests = []
+            for i, id in enumerate(tile_ids):
+                query = UpdateOne({'_id': forest_id, 'forest_tiles.tile_id':id}, {'$set' : {'forest_tiles.$.infered_mask' : pickle.dumps(inferences[i, ...]), "mask_update_date": today}})
+                update_requests.append(query)
+
+            forests_bulkWrite(update_requests)
+    except Exception as e:
+            return make_response(jsonify({'error': str(e)}), 400)
     
 
 
