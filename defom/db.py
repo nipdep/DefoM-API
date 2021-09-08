@@ -34,6 +34,8 @@ db = LocalProxy(get_db)
 def get_user_by_name(name):
     return db.users.find_one({'username' : name})
 
+######################### FOREST SATELLITE related function ##########################################
+
 def save_forest(forest_data):
     try:
         res = db.forests.insert_one(forest_data)
@@ -136,3 +138,43 @@ def get_tile_view_id(forest_id, tile_ids, date):
         return acc_tiles
     except Exception as e:
         return e
+
+################### USER realted function ###############################
+
+def add_user(username, email, password):
+    try:
+        return db.users.insert_one({'username' : username, 'password' : password, 'email' : email, 'user_type' : 'Citizen'})
+    except Exception as e:
+        return e
+
+def get_user(email):
+    try:
+        return db.users.find_one({'email' : email})
+    except Exception as e:
+        return e
+
+def login_user(email, jwt):
+    """
+    Given an email and JWT, logs in a user by updating the JWT corresponding
+    with that user's email in the `sessions` collection.
+
+    In `sessions`, each user's email is stored in a field called "user_id".
+    """
+    try:
+        db.sessions.update_one(
+            { "user_id": email },
+            { "$set": { "jwt": jwt } }
+        )
+        return {"success": True}
+    except Exception as e:
+        return {"error": e}  
+
+def logout_user(email):
+    """
+    In `sessions`, each user's email is stored in a field called "user_id".
+    """
+    try:
+        db.sessions.delete_one({ "user_id": email })
+        return {"success": True}
+    except Exception as e:
+        return {"error": e}   

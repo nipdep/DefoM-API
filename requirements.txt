@@ -9,3 +9,4 @@ Flask_Bcrypt==0.7.1
 Flask_JWT_Extended==4.3.0
 sentinelhub==3.3.2
 tensorflow_cpu==2.6.0
+Werkzeug==2.0.1
