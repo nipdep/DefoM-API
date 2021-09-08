@@ -16,11 +16,11 @@ backend API for the deforestation application
 | daily forest threar type updates accourding to predictions | @nipdep | completed |
 | entire forest satellite view invoking and store | @nipdep | completed |
 | predict and save tile threat area on changes | @nipdep | completed |
-| get threat results in to rendered map | @Thushan97, @nipdep | todo |
+| get threat results in to rendered map | @Thushan97, @nipdep | todo, todo |
 | create forum message thread by Citizen | @Dilaxsaswaran | running |
 | view massage only by allowed parties | @Dilaxsaswaran | running |
 | set restriction on thread access | @Dilaxsaswaran | todo |
 | put message and read message | @Dilaxsaswaran | running |
 | add comments to messages | @Dilaxsaswaran | todo |
-| pin location and forest in messages | @Dilaxsaswaran, @nipdep | todo |
+| pin location and forest in messages | @Dilaxsaswaran, @nipdep | todo, todo |
 | deleted or close thread | @Dilaxsaswaran | todo |
