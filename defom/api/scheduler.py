@@ -9,7 +9,7 @@ import pickle
 
 from pymongo import UpdateOne
 
-from defom.db import get_all_forest_tiles, save_forestTile, get_forest_ids, get_latest_forest_tiles, forestTile_bulkWrite, forests_bulkWrite, get_all_forests_tile_details, get_forests_pred_bnd, get_forest_tile_inf, get_tile_view_id
+from defom.db import get_all_forest_tiles, save_forestTile, get_forest_ids, get_latest_forest_tiles, forestTile_bulkWrite, forests_bulkWrite, get_all_forests_tile_details, get_forests_pred_bnd, get_forest_tile_inf, get_tile_view_id, forestPage_bulkWrite
 from defom.src.SentinelhubClient import SentilhubClient
 from defom.src.DLClient import ClassiModel, MaskModel
 
@@ -209,7 +209,7 @@ def set_forest_view():
                 bin_image = pickle.dumps(preprocessed_view)
                 update_requests.append(UpdateOne({'_id' : forest_id}, {'$set' : {'entire_forest_view' : bin_image, 'forest_view_updated_date' : today}}))
 
-        forests_bulkWrite(update_requests)
+        forestPage_bulkWrite(update_requests)
     except Exception as e:
             return make_response(jsonify({'error': str(e)}), 400)
 
@@ -239,6 +239,10 @@ def set_mask_daily():
             for tile in acc_td_tiles:
                 image_td_dict[tile['tile_id']] = pickle.loads(tile['image'])
 
+            image_id_td_dict = {}
+            for tile in acc_td_tiles:
+                image_id_td_dict[tile['tile_id']] = pickle.loads(tile['_id'])
+
             image_ys_dict = {}
             for tile in acc_ys_tiles:
                 image_ys_dict[tile['tile_id']] = pickle.loads(tile['image'])
@@ -255,10 +259,10 @@ def set_mask_daily():
 
             update_requests = []
             for i, id in enumerate(tile_ids):
-                query = UpdateOne({'_id': forest_id, 'forest_tiles.tile_id':id}, {'$set' : {'forest_tiles.$.infered_mask' : pickle.dumps(inferences[i, ...]), "mask_update_date": today}})
+                query = UpdateOne({'_id': image_id_td_dict[i]}, {'$set' : {'forest_tiles.$.infered_mask' : pickle.dumps(inferences[i, ...]), "mask_update_date": today}})
                 update_requests.append(query)
 
-            forests_bulkWrite(update_requests)
+            forestTile_bulkWrite(update_requests)
     except Exception as e:
             return make_response(jsonify({'error': str(e)}), 400)
     
