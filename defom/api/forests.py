@@ -4,7 +4,7 @@ from flask import make_response, request, jsonify
 from flask_restful import Resource, fields, marshal_with
 
 from defom.api.utils import expect
-from defom.db import save_forest, save_forestTile
+from defom.db import save_forest, save_forestTile, create_forest_page
 from defom.src.SentinelhubClient import SentilhubClient
 
 class Forest(object):
@@ -53,6 +53,13 @@ class RegisterForest(Resource):
 
         try:
             res = save_forest(forest_data)
-            return make_response(jsonify({"status" : str(res.acknowledged)}), 200)
+            # return make_response(jsonify({"status" : str(res.acknowledged)}), 200)
+        except Exception as e:
+            return make_response(jsonify({'error': str(e)}), 411)
+
+        try:
+            new_fid = res.inserted_id
+            res1 = create_forest_page({'forest_id':new_fid})
+            return make_response(jsonify({"status" : str(res1.acknowledged)}), 200)
         except Exception as e:
             return make_response(jsonify({'error': str(e)}), 411)

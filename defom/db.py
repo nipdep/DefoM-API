@@ -43,6 +43,14 @@ def save_forest(forest_data):
         return res
     except Exception as e:
         return e
+    
+def create_forest_page(forest_data):
+    try:
+        res = db.forestPage.insert_one(forest_data)
+        # db.create_index("forest_tiles")
+        return res
+    except Exception as e:
+        return e
 
 def get_all_forest_tiles():
     try:
@@ -115,6 +123,12 @@ def forestTile_bulkWrite(update_requests):
 def forests_bulkWrite(update_requests):
     try:
         db.forests.bulk_write(update_requests, ordered=False)
+    except BulkWriteError as bwe:
+        pprint(bwe.details)
+
+def forestPage_bulkWrite(update_requests):
+    try:
+        db.forestPage.bulk_write(update_requests, ordered=False)
     except BulkWriteError as bwe:
         pprint(bwe.details)
 
