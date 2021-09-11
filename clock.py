@@ -201,5 +201,5 @@ if __name__ == '__main__':
     scheduler.add_job(func=set_latest_threat_daily, trigger="cron", hour='12-13')
     scheduler.add_job(func=set_forest_view, trigger="cron", hour='13-14')
     scheduler.add_job(func=set_mask_daily, trigger="cron", hour='14-15')
-    scheduler.add_job(func=timed_job, trigger='interval', minutes=1)
+    scheduler.add_job(func=timed_job, trigger='interval', seconds=10)
     scheduler.start()
