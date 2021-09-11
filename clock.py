@@ -1,5 +1,5 @@
 
-from apscheduler.schedulers.background import BackgroundScheduler
+from apscheduler.schedulers.background import BackgroundScheduler, BlockingScheduler
 
 from datetime import date, datetime, timedelta
 import numpy as np
@@ -11,9 +11,10 @@ from defom.db import get_all_forest_tiles, save_forestTile, get_forest_ids, get_
 from defom.src.SentinelhubClient import SentilhubClient
 from defom.src.DLClient import ClassiModel, MaskModel
 
-
+sched = BlockingScheduler()
 
 ## daily satellite feed extraction
+@sched.scheduled_job('cron', hour=10)
 def save_tiles_daily():
     dict_list = get_all_forest_tiles()
     sentinel_client = SentilhubClient()
@@ -57,6 +58,7 @@ def save_tiles_daily():
 
 
 ## daily threat type inference on latest collected data
+
 def class_inf(forest_id, date):
     try:
         image_list, image_id_list = get_latest_forest_tiles(forest_id, date)
@@ -68,6 +70,7 @@ def class_inf(forest_id, date):
     except Exception as e:
         return e
 
+@sched.scheduled_job('cron', hour=10)
 def make_class_inf_daily():
     yesterday = datetime.combine(date.today()-timedelta(days=1), datetime.min.time())
 
@@ -86,6 +89,7 @@ def make_class_inf_daily():
            return print(e)
 
 ## daily update threat type on forest tiles
+@sched.scheduled_job('cron', hour=10)
 def set_latest_threat_daily():
     threat_list = ['agriculture', 'cultivation', 'habitation', 'road', 'water']
     today = datetime.combine(date.today(), datetime.min.time())
@@ -117,6 +121,7 @@ def set_latest_threat_daily():
             return print(e)
     
 ## set entire forest view if any new threat appears
+@sched.scheduled_job('cron', hour=10)
 def set_forest_view():
     today = datetime.combine(date.today(), datetime.min.time())
     sentinel_client = SentilhubClient()
@@ -138,6 +143,7 @@ def set_forest_view():
             return print(e)
 
 ## daily threat location mask prediction and update in forest documents
+
 def input_creator(image1, image2):
     image1_ch1, image2_ch1 = image1[:, :, 0], image2[:, :, 0]
     image1_ch1, image2_ch1 = image1_ch1[np.newaxis, ...], image2_ch1[np.newaxis, ...]
@@ -145,6 +151,7 @@ def input_creator(image1, image2):
     inf_img = np.moveaxis(inf_img, (0,1,2), (2,0,1))
     return inf_img
 
+@sched.scheduled_job('cron', hour=10)
 def set_mask_daily():
     today = datetime.combine(date.today(), datetime.min.time())
     yesterday = datetime.combine(date.today()-timedelta(days=1), datetime.min.time())
@@ -190,16 +197,19 @@ def set_mask_daily():
     except Exception as e:
             return print(e)
 
+@sched.scheduled_job('interval', seconds=5)
 def timed_job():
     print('This job is run every three minutes.')
     
 
-if __name__ == '__main__':
-    scheduler = BackgroundScheduler()
-    scheduler.add_job(func=save_tiles_daily, trigger="cron", hour='10-11')
-    scheduler.add_job(func=make_class_inf_daily, trigger="cron", hour='11-12')
-    scheduler.add_job(func=set_latest_threat_daily, trigger="cron", hour='12-13')
-    scheduler.add_job(func=set_forest_view, trigger="cron", hour='13-14')
-    scheduler.add_job(func=set_mask_daily, trigger="cron", hour='14-15')
-    scheduler.add_job(func=timed_job, trigger='interval', seconds=10)
-    scheduler.start()
+# if __name__ == '__main__':
+#     scheduler = BlockingScheduler()
+#     scheduler.add_job(func=save_tiles_daily, trigger="cron", hour='10-11')
+#     scheduler.add_job(func=make_class_inf_daily, trigger="cron", hour='11-12')
+#     scheduler.add_job(func=set_latest_threat_daily, trigger="cron", hour='12-13')
+#     scheduler.add_job(func=set_forest_view, trigger="cron", hour='13-14')
+#     scheduler.add_job(func=set_mask_daily, trigger="cron", hour='14-15')
+#     scheduler.add_job(func=timed_job, trigger='interval', seconds=10)
+#     scheduler.start()
+
+sched.start()
