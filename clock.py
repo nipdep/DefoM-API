@@ -11,7 +11,7 @@ from defom.db import get_all_forest_tiles, save_forestTile, get_forest_ids, get_
 from defom.src.SentinelhubClient import SentilhubClient
 from defom.src.DLClient import ClassiModel, MaskModel
 
-sched = BlockingScheduler()
+sched = BackgroundScheduler()
 
 ## daily satellite feed extraction
 @sched.scheduled_job('cron', hour=10)
