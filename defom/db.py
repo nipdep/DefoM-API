@@ -161,6 +161,12 @@ def add_user(username, email, password):
     except Exception as e:
         return e
 
+def add_user_name():
+    try:
+        return db.users.insert_one({'username' : 'test'})
+    except Exception as e:
+        return e
+
 def get_user(email):
     try:
         return db.users.find_one({'email' : email})

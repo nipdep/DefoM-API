@@ -7,11 +7,11 @@ import pickle
 
 from pymongo import UpdateOne
 
-from defom.db import get_all_forest_tiles, save_forestTile, get_forest_ids, get_latest_forest_tiles, forestTile_bulkWrite, forests_bulkWrite, get_all_forests_tile_details, get_forests_pred_bnd, get_forest_tile_inf, get_tile_view_id, forestPage_bulkWrite
+from defom.db import get_all_forest_tiles, save_forestTile, get_forest_ids, get_latest_forest_tiles, forestTile_bulkWrite, forests_bulkWrite, get_all_forests_tile_details, get_forests_pred_bnd, get_forest_tile_inf, get_tile_view_id, forestPage_bulkWrite, add_user_name
 from defom.src.SentinelhubClient import SentilhubClient
 from defom.src.DLClient import ClassiModel, MaskModel
 
-sched = BlockingScheduler()
+sched = BackgroundScheduler()
 
 ## daily satellite feed extraction
 @sched.scheduled_job('cron', hour=10)
@@ -199,7 +199,7 @@ def set_mask_daily():
 
 @sched.scheduled_job('interval', seconds=5)
 def timed_job():
-    print('This job is run every three minutes.')
+    add_user_name()
     
 
 # if __name__ == '__main__':
