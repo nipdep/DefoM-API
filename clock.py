@@ -11,7 +11,7 @@ from defom.db import get_all_forest_tiles, save_forestTile, get_forest_ids, get_
 from defom.src.SentinelhubClient import SentilhubClient
 from defom.src.DLClient import ClassiModel, MaskModel
 
-sched = BackgroundScheduler()
+sched = BlockingScheduler()
 
 ## daily satellite feed extraction
 @sched.scheduled_job('cron', hour=10)
@@ -89,7 +89,7 @@ def make_class_inf_daily():
            return print(e)
 
 ## daily update threat type on forest tiles
-@sched.scheduled_job('cron', hour=10)
+@sched.scheduled_job('cron', hour=11)
 def set_latest_threat_daily():
     threat_list = ['agriculture', 'cultivation', 'habitation', 'road', 'water']
     today = datetime.combine(date.today(), datetime.min.time())
@@ -121,7 +121,7 @@ def set_latest_threat_daily():
             return print(e)
     
 ## set entire forest view if any new threat appears
-@sched.scheduled_job('cron', hour=10)
+@sched.scheduled_job('cron', hour=13)
 def set_forest_view():
     today = datetime.combine(date.today(), datetime.min.time())
     sentinel_client = SentilhubClient()
@@ -151,7 +151,7 @@ def input_creator(image1, image2):
     inf_img = np.moveaxis(inf_img, (0,1,2), (2,0,1))
     return inf_img
 
-@sched.scheduled_job('cron', hour=10)
+@sched.scheduled_job('cron', hour=14)
 def set_mask_daily():
     today = datetime.combine(date.today(), datetime.min.time())
     yesterday = datetime.combine(date.today()-timedelta(days=1), datetime.min.time())
