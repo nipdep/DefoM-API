@@ -21,6 +21,6 @@ backend API for the deforestation application
 | view massage only by allowed parties | @Dilaxsaswaran, @Thushan97 | running, todo |
 | set restriction on thread access | @Dilaxsaswaran, @Thushan97 | todo, todo |
 | put message and read message | @Dilaxsaswaran, @Thushan97 | running, todo |
-| add comments to messages | @Dilaxsaswaran, @Thushan97 | todo, todo |
+| add comments to messages | @Dilaxsaswaran, @Thushan97 | running, todo |
 | pin location and forest in messages | @Dilaxsaswaran, @nipdep, @Thushan97 | todo, todo, todo |
 | deleted or close thread | @Dilaxsaswaran, @Thushan97 | todo, todo |
