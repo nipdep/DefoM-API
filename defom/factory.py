@@ -9,7 +9,7 @@ from flask_restful import Resource, Api
 
 from bson import json_util, ObjectId
 from datetime import datetime, timedelta
-from apscheduler.schedulers.background import BackgroundScheduler
+
 
 from defom.api.users import User, RegisterUser, LoginUser, logoutUser
 from defom.api.forests import RegisterForest
@@ -43,12 +43,6 @@ def create_api():
     #         'user': identity,
     #     }
 
-    scheduler = BackgroundScheduler()
-    scheduler.add_job(func=save_tiles_daily, trigger="cron", hour='10-11')
-    scheduler.add_job(func=make_class_inf_daily, trigger="cron", hour='11-12')
-    scheduler.add_job(func=set_latest_threat_daily, trigger="cron", hour='12-13')
-    scheduler.add_job(func=set_forest_view, trigger="cron", hour='13-14')
-    scheduler.add_job(func=set_mask_daily, trigger="cron", hour='14-15')
 
     app.config['JWT'] = jwt
     app.config['BCRYPT'] = Bcrypt(app)
