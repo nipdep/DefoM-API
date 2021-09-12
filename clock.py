@@ -199,7 +199,8 @@ def set_mask_daily():
 
 @sched.scheduled_job('interval', seconds=5)
 def timed_job():
-    add_user_name()
+    # add_user_name()
+    print("CLOCK is working..")
     
 
 # if __name__ == '__main__':
