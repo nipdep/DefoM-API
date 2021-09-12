@@ -13,7 +13,5 @@ app = create_api()
 # app.config['NS'] = config['PROD']['NS']
 # app.config['SECRET_KEY'] = config['PROD']['SECRET_KEY']
 
-app.config['DEBUG'] = True
-
 
 app.run()
