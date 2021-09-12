@@ -1,3 +1,3 @@
-web: gunicorn app.app:app
+web: python app.py $PORT
 clock: python clock.py
 
