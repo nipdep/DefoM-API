@@ -12,33 +12,34 @@ from flask_jwt_extended import (
 )
 
 from flask import current_app, g
-from werkzeug.local import LocalProxy
+# from werkzeug.local import LocalProxy
 
-def get_bcrypt():
-    bcrypt = getattr(g, '_bcrypt', None)
-    if bcrypt is None:
-        bcrypt = g._bcrypt = current_app.config['BCRYPT']
-    return bcrypt
-
-
-def get_jwt():
-    jwt = getattr(g, '_jwt', None)
-    if jwt is None:
-        jwt = g._jwt = current_app.config['JWT']
-
-    return jwt
+# def get_bcrypt():
+#     bcrypt = getattr(g, '_bcrypt', None)
+#     if bcrypt is None:
+#         bcrypt = g._bcrypt = current_app.config['BCRYPT']
+#     return bcrypt
 
 
-def init_claims_loader():
-    add_claims = getattr(g, '_add_claims', None)
-    if add_claims is None:
-        add_claims = g._add_claims = current_app.config['ADD_CLAIMS']
-    return add_claims
+# def get_jwt():
+#     jwt = getattr(g, '_jwt', None)
+#     if jwt is None:
+#         jwt = g._jwt = current_app.config['JWT']
+
+#     return jwt
 
 
-jwt = LocalProxy(get_jwt)
-bcrypt = LocalProxy(get_bcrypt)
-add_claims_to_access_token = LocalProxy(init_claims_loader)
+# def init_claims_loader():
+#     add_claims = getattr(g, '_add_claims', None)
+#     if add_claims is None:
+#         add_claims = g._add_claims = current_app.config['ADD_CLAIMS']
+#     return add_claims
+
+
+# jwt = LocalProxy(get_jwt)
+# bcrypt = LocalProxy(get_bcrypt)
+# add_claims_to_access_token = LocalProxy(init_claims_loader)
+bcrypt = ""   ## TODO
 
 class RegisterUser(Resource):
 
