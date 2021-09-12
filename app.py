@@ -6,16 +6,16 @@ import configparser
 # config = configparser.ConfigParser()
 # config.read(os.path.abspath(os.path.join(".ini")))
 
-# if __name__ == '__main__':
-app = create_api()
-# app.config['DEBUG'] = True
-# app.config['DB_URI'] = config['PROD']['DB_URI']
-# app.config['NS'] = config['PROD']['NS']
-# app.config['SECRET_KEY'] = config['PROD']['SECRET_KEY']
+if __name__ == '__main__':
+    app = create_api()
+    # app.config['DEBUG'] = True
+    # app.config['DB_URI'] = config['PROD']['DB_URI']
+    # app.config['NS'] = config['PROD']['NS']
+    # app.config['SECRET_KEY'] = config['PROD']['SECRET_KEY']
 
-app.config['DEBUG'] = True
-app.config['DB_URI'] = os.environ.get('DB_URI', None)
-app.config['NS'] = os.environ.get('NS', None)
-app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', None)
+    app.config['DEBUG'] = True
+    app.config['DB_URI'] = os.environ.get('DB_URI', None)
+    app.config['NS'] = os.environ.get('NS', None)
+    app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', None)
 
-app.run()
+    app.run()
