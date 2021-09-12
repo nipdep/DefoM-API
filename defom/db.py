@@ -1,6 +1,4 @@
-
-from flask import current_app, g
-from werkzeug.local import LocalProxy
+import os
 
 import pickle
 from pprint import pprint
@@ -13,23 +11,19 @@ from bson.errors import InvalidId
 from pymongo.read_concern import ReadConcern
 
 
+# DB_URI = os.environ.get('DB_URI', None)
+# NS = os.environ.get('NS', None)
+# SECRET_KEY = os.environ.get('SECRET_KEY', None)
+
 def get_db():
-    """
-    Configuration method to return db instance
-    """
-    db = getattr(g, "_database", None)
-    DB_URI = current_app.config["DB_URI"]
-    DB_NAME = current_app.config["NS"]
-    if db is None:
-        db = g._database = MongoClient(
-        DB_URI,
-        )[DB_NAME]
-        print(db['__my_database__'])
+    uri = f"mongodb+srv://defomAdmin:{os.environ.get('password')}@defomdb.osisk.mongodb.net"
+    client = MongoClient(uri)
+    db = client.defom
     return db
 
 
 # Use LocalProxy to read the global db instance with just `db`
-db = LocalProxy(get_db)
+db = get_db()
 
 def get_user_by_name(name):
     return db.users.find_one({'username' : name})

@@ -14,8 +14,6 @@ app = create_api()
 # app.config['SECRET_KEY'] = config['PROD']['SECRET_KEY']
 
 app.config['DEBUG'] = True
-app.config['DB_URI'] = os.environ.get('DB_URI', None)
-app.config['NS'] = os.environ.get('NS', None)
-app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', None)
+
 
 app.run()
