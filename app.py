@@ -21,6 +21,7 @@ import os
 from flask import Flask, render_template
 from flask.json import JSONEncoder
 from flask_bcrypt import Bcrypt
+from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 
 from flask_restful import Resource, Api
@@ -52,6 +53,7 @@ class Fac(Resource):
 
 app = Flask(__name__)
 api = Api(app)
+CORS(app)
 app.json_encoder = MongoJsonEncoder
 jwt = JWTManager(app)
 
