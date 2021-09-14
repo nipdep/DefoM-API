@@ -78,4 +78,5 @@ api.add_resource(logoutUser, '/user/logout')
 api.add_resource(GetTiles, '/gettiles')  ## testing resources
 api.add_resource(MakeClassInf, '/classinf') ## testing resources
 
-app.run()
+if __name__ == '__main__':
+    app.run()
