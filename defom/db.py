@@ -16,7 +16,8 @@ from pymongo.read_concern import ReadConcern
 # SECRET_KEY = os.environ.get('SECRET_KEY', None)
 
 def get_db():
-    uri = f"mongodb+srv://defomAdmin:{os.environ.get('password')}@defomdb.osisk.mongodb.net"
+    # uri = f"mongodb+srv://defomAdmin:{os.environ.get('password')}@defomdb.osisk.mongodb.net"
+    uri = f"mongodb+srv://defomAdmin:pwd3202defom@defomdb.osisk.mongodb.net"
     client = MongoClient(uri)
     db = client.defom
     return db

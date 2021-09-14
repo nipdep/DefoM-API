@@ -34,6 +34,10 @@ from defom.api.users import User, RegisterUser, LoginUser, logoutUser
 from defom.api.forests import RegisterForest
 from defom.api.scheduler import GetTiles, save_tiles_daily, make_class_inf_daily, MakeClassInf, set_latest_threat_daily, set_forest_view, set_mask_daily
 
+import configparser
+
+config = configparser.ConfigParser()
+config.read(os.path.abspath(os.path.join(".ini")))
 
 class MongoJsonEncoder(JSONEncoder):
     def default(self, obj):
@@ -62,7 +66,10 @@ jwt = JWTManager(app)
 #     return {
 #         'user': identity,
 #     }
-
+app.config['DEBUG'] = True
+app.config['DB_URI'] = config['PROD']['DB_URI']
+app.config['NS'] = config['PROD']['NS']
+app.config['SECRET_KEY'] = config['PROD']['SECRET_KEY']
 
 app.config['JWT'] = jwt
 app.config['BCRYPT'] = Bcrypt(app)
