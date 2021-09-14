@@ -213,4 +213,5 @@ def timed_job():
 #     scheduler.add_job(func=timed_job, trigger='interval', seconds=10)
 #     scheduler.start()
 
-sched.start()
+if __name__ == '__main__':
+    sched.start()
