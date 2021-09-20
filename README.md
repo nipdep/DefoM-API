@@ -6,7 +6,7 @@ backend API for the deforestation application
 | UserCase | Dev | status |
 | :---     | :---| :---   |
 | User registration | @Thushan97, @nipdep | completed, completed |
-| User Log-in and Log out | @Thushan97, @Dilaxsaswaran , @nipdep | running, running, completed |
+| User Log-in and Log out | @Thushan97, @Dilaxsaswaran , @nipdep | completed, running, completed |
 | User Detail updates | @Thushan97, @Dilaxsaswaran | todo, todo |
 | Forest registration | @Thushan97, @nipdep | running, completed |
 | Forest detailt update | @Thushan97, @nipdep | todo, todo |
