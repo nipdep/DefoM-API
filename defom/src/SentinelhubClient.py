@@ -44,7 +44,7 @@ class SentilhubClient(object):
 
         return bbox_coords_list
 
-    def get_forest(self, geo_json):
+    def get_forest(self, geo_json, start_date, end_date):
 
         evalscript_true_color = """
             //VERSION=3
@@ -54,7 +54,7 @@ class SentilhubClient(object):
                         bands: ["B02", "B03", "B04"]
                     }],
                     output: {
-                        bands: 3
+                        bands: 5
                     }
                 };
             }
@@ -62,6 +62,7 @@ class SentilhubClient(object):
                 return [sample.B04, sample.B03, sample.B02];
             }
         """
+            
         full_geometry = Geometry(geo_json['features'][0]['geometry'], crs=CRS.WGS84)
 
         request = SentinelHubRequest(
@@ -69,7 +70,7 @@ class SentilhubClient(object):
             input_data=[
                 SentinelHubRequest.input_data(
                     data_collection=DataCollection.SENTINEL2_L2A,
-                    time_interval=('2021-06-01', '2021-06-02'),
+                    time_interval=(start_date, end_date),
                     mosaicking_order='leastCC'
                 )
             ],
@@ -101,23 +102,25 @@ class SentilhubClient(object):
         tile_size = bbox_to_dimensions(tile_bbox, resolution=resolution)
 
         evalscript_true_color = """
-            //VERSION=3
-
-            function setup() {
+                //VERSION=3
+                function setup() {
                 return {
                     input: [{
-                        bands: ["B02", "B03", "B04"]
+                        bands: ["B01", "B02", "B03", "B04", "B05", "B06", "B07", "B08", "B8A", "B09", "B11", "B12"],
+                        units: "DN"
                     }],
                     output: {
-                        bands: 3
+                        id: "default",
+                        bands: 12,
+                        sampleType: SampleType.UINT16
                     }
-                };
-            }
+                }
+                }
 
-            function evaluatePixel(sample) {
-                return [sample.B04, sample.B03, sample.B02];
-            }
-        """
+                function evaluatePixel(sample) {
+                    return [ sample.B02, sample.B03, sample.B04, sample.B08, sample.B11]
+                }
+            """
 
         request_true_color = SentinelHubRequest(
             evalscript=evalscript_true_color,
@@ -129,7 +132,7 @@ class SentilhubClient(object):
                 )
             ],
             responses=[
-                SentinelHubRequest.output_response('default', MimeType.PNG)
+                SentinelHubRequest.output_response('default', MimeType.TIFF)
             ],
             bbox=tile_bbox,
             size=tile_size,
