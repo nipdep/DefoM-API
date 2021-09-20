@@ -4,6 +4,7 @@ from apscheduler.schedulers.background import BackgroundScheduler, BlockingSched
 from datetime import date, datetime, timedelta
 import numpy as np
 import pickle
+import cv2
 
 from pymongo import UpdateOne
 
@@ -34,7 +35,7 @@ def save_tiles_daily():
 
                 try:
                     sat_image = sentinel_client.get_tile(coords, 10, start_date, end_date)
-                    preprocessed_image = np.clip(sat_image[0]*3.5/255, 0, 1)
+                    preprocessed_image = sat_image[0]
                     binary_image = pickle.dumps(preprocessed_image)
                 except Exception as e:
                     return print(e)
@@ -58,10 +59,14 @@ def save_tiles_daily():
 
 
 ## daily threat type inference on latest collected data
+def get_RGB(image):
+    rgb = cv2.normalize(image[:,:,[2,1,0]], None, 0, 255, cv2.NORM_MINMAX, dtype=cv2.CV_8U)
+    return rgb
 
 def class_inf(forest_id, date):
     try:
         image_list, image_id_list = get_latest_forest_tiles(forest_id, date)
+        image_list = [get_RGB(im) for im in image_list]
         np_image_list = np.array(image_list)
 
         class_model = ClassiModel.getInstance()
@@ -181,8 +186,9 @@ def set_mask_daily():
             inf_image_dict = {}
             for i in image_td_dict:
                 inf_image_dict[i] = input_creator(image_td_dict[i], image_ys_dict[i])
-                    
-            inf_images = np.array(list(inf_image_dict.values()))
+
+            rgb_inf_images = [get_RGB(im) for im in list(inf_image_dict.values())]      
+            inf_images = np.array(rgb_inf_images)
 
             inferences = mask_model.inference(inf_images)
 
