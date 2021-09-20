@@ -1,14 +1,17 @@
 
 from flask_restful import Resource
-from flask import jsonify, Blueprint, make_response, request
-
+from flask import jsonify, Blueprint, make_response, request, session
 from defom.api.utils import expect
 from defom.db import get_user_by_name, add_user, get_user, login_user, logout_user
 from bson.json_util import dumps, loads
+from werkzeug.security import generate_password_hash, check_password_hash
+from jwt import PyJWT
+import datetime
+import json
 
 from flask_jwt_extended import (
     jwt_required, create_access_token,
-    get_jwt_claims
+    get_jwt_claims, jwt_required, create_access_token,   
 )
 
 from flask import current_app, g
@@ -41,84 +44,43 @@ bcrypt = LocalProxy(get_bcrypt)
 add_claims_to_access_token = LocalProxy(init_claims_loader)
 
 class RegisterUser(Resource):
+    def post(self):
+        post_data = request.get_json()
+        email = expect(post_data['email'], str, 'email')
+        name = expect(post_data['name'], str, 'name')
+        password = expect(post_data['password'], str, 'password')
 
-    def post():
-        try:
-            post_data = request.get_json()
-            email = expect(post_data['email'], str, 'email')
-            name = expect(post_data['name'], str, 'name')
-            password = expect(post_data['password'], str, 'password')
-        except Exception as e:
-            return jsonify({'error': str(e)}), 400
-
-        errors = {}
         if len(password) < 8:
-            errors['password'] = "Your password must be at least 8 characters."
+            return "Your password must be at least 8 characters.", 400
 
-        if len(name) <= 3:
-            errors['name'] = "You must specify a name of at least 3 characters."
-
-        if len(errors.keys()) != 0:
-            response_object = {
-                'status': 'fail',
-                'error': errors
-            }
-            return jsonify(response_object), 411
-        try:
-            result = add_user(name, email, bcrypt.generate_password_hash(
-                password=password.encode('utf8')).decode("utf-8"))
-        except Exception as e:
-                return make_response(jsonify(e), 411)
-
-
+        if len(name) < 3:
+            return "You must specify a name of at least 3 characters.", 400
+        
+        existing_user = get_user(email)
+        if existing_user is None:
+            result = add_user(name, email, generate_password_hash(
+                password, method="sha256"))
+            access_token = create_access_token(identity={"email" : email})
+            # return make_response('Successfully Registered',200,{"x-auth-token" : access_token} )
+            return {"access_token" : access_token}, 200
+        return "This user already exists", 400
+       
 class LoginUser(Resource):
-
-    def post():
-        email = ""
-        password = ""
-        try:
-            post_data = request.get_json()
-            email = expect(post_data['email'], str, 'email')
-            password = expect(post_data['password'], str, 'email')
-        except Exception as e:
-            jsonify({'error': str(e)}), 400
-
+    def post(self):
+        post_data = request.get_json()
+        email = expect(post_data['email'], str, 'email')
+        password = expect(post_data['password'], str, 'password')
         userdata = get_user(email)
         if not userdata:
-            response_object = {
-                'error': {'email': 'Make sure your email is correct.'}
-            }
-            return make_response(jsonify(response_object)), 401
-        if not bcrypt.check_password_hash(userdata['password'], password):
-            response_object = {
-                'error': {'password': 'Make sure your password is correct.'}
-            }
-            return make_response(jsonify(response_object)), 401
+            return "Make sure your email is correct.", 400
+               
+        if not check_password_hash(userdata['password'], password):
+            return "Make sure your password is correct.", 400
 
-        userdata = {
-            "email": userdata['email'],
-            "name": userdata['name'],
-            "preferences": userdata.get('preferences'),
-            "isAdmin": userdata.get('isAdmin', False)
-        }
-
-        user = User(userdata)
-        jwt = create_access_token(user.to_json())
-
-        try:
-            login_user(user.email, jwt)
-            response_object = {
-                'auth_token': jwt,
-                'info': userdata,
-            }
-            return make_response(jsonify(response_object)), 201
-        except Exception as e:
-            response_object = {
-                'error': {'internal': e}
-            }
-            return make_response(jsonify(response_object)), 500
-
-
+        access_token = create_access_token(identity={"email" : userdata['email']})
+        login_user(email, access_token)
+        return {"access_token" : access_token}, 200
+       
 class logoutUser(Resource):
 
     @jwt_required

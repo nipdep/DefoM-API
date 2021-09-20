@@ -17,9 +17,11 @@ from pymongo.read_concern import ReadConcern
 
 def get_db():
     # uri = f"mongodb+srv://defomAdmin:{os.environ.get('password')}@defomdb.osisk.mongodb.net"
-    uri = f"mongodb+srv://defomAdmin:pwd3202defom@defomdb.osisk.mongodb.net"
+    uri = f"mongodb+srv://defomAdmin:pwd3202defom@defomdb.osisk.mongodb.net/?ssl=true&ssl_cert_reqs=CERT_NONE"
+    # uri = f"mongodb+srv://defomAdmin:pwd3202defom@defomdb.osisk.mongodb.net/test?authSource=admin&replicaSet=atlas-d7vl2z-shard-0&readPreference=primary&appname=MongoDB%20Compass&ssl=true"
     client = MongoClient(uri)
     db = client.defom
+    print("connected to database")
     return db
 
 
@@ -152,7 +154,7 @@ def get_tile_view_id(forest_id, tile_ids, date):
 
 def add_user(username, email, password):
     try:
-        return db.users.insert_one({'username' : username, 'password' : password, 'email' : email, 'user_type' : 'Citizen'})
+        return db.users.insert_one({'username' : username, 'password' : password, 'email' : email, 'user_type' : 'admin'})
     except Exception as e:
         return e
 
@@ -164,7 +166,7 @@ def add_user_name():
 
 def get_user(email):
     try:
-        return db.users.find_one({'email' : email})
+        return db.users.find_one({'email' : email})   
     except Exception as e:
         return e
 
