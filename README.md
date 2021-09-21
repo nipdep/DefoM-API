@@ -8,7 +8,7 @@ backend API for the deforestation application
 | User registration | @Thushan97, @nipdep | completed, completed |
 | User Log-in and Log out | @Thushan97, @Dilaxsaswaran , @nipdep | completed, running, completed |
 | User Detail updates | @Thushan97, @Dilaxsaswaran | todo, todo |
-| Forest registration | @Thushan97, @nipdep | running, completed |
+| Forest registration | @Thushan97, @nipdep | completed, completed |
 | Forest detailt update | @Thushan97, @nipdep | todo, todo |
 | forest tile seperation and update | @nipdep | completed |
 | daily forest tile satellite feed invoking and store | @nipdep | completed |
