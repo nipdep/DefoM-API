@@ -154,7 +154,7 @@ def get_tile_view_id(forest_id, tile_ids, date):
 
 def add_user(username, email, password):
     try:
-        return db.users.insert_one({'username' : username, 'password' : password, 'email' : email, 'user_type' : 'admin'})
+        return db.users.insert_one({'username' : username, 'password' : password, 'email' : email, 'user_type' : 'citizen'})
     except Exception as e:
         return e
 
