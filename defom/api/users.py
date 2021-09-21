@@ -102,7 +102,7 @@ class LoginUser(Resource):
             "isAdmin": userdata.get('isAdmin', False)
         }
 
-        user = User(userdata)
+        user = User(userdata)git
         jwt = create_access_token(user.to_json())
 
         try:
