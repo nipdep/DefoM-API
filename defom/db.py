@@ -159,7 +159,7 @@ def get_tile_view_id(forest_id, tile_ids, date):
 
 def get_forest_tiles(forest_id):
     try:
-        acc_tiles = db.forests.find_one({'_id':forest_id}, {'forest_name':1, 'forest_tiles':1})
+        acc_tiles = db.forests.find_one({'_id':forest_id}, {'forest_name':1, 'forest_tiles':1, 'location':1})
         return acc_tiles
     except Exception as e:
         return e
