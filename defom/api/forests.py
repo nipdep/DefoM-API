@@ -168,6 +168,7 @@ class ForestTiles(Resource):
                 up, down = tile['bbox']
                 up_bbox = [up[::-1],down[::-1]]
                 tile['bbox'] = up_bbox
+            res['location'] = res['location'][::-1]
             return make_response(jsonify(res), 200)
         except Exception as e:
             return make_response(jsonify({'error': str(e)}), 400) 
