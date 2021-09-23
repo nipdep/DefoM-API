@@ -32,7 +32,7 @@ class SentilhubClient(object):
             list of BBOX objects in the form of [((lat1, lon1), (lat2, lon2)), ...]
         """
         forest_area = shape(json_data['features'][0]['geometry'])
-        osm_splitter = OsmSplitter([forest_area], CRS.WGS84, zoom_level=14)
+        osm_splitter = OsmSplitter([forest_area], CRS.WGS84, zoom_level=13)
         bbox_list = osm_splitter.get_bbox_list()
         bbox_coords_list = []
 
