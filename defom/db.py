@@ -102,12 +102,19 @@ def get_latest_forest_tiles(forest_id, date, state=1):
                                                          'save_time': date}, 
                                                         {'tile_id' : 1, 
                                                         'classification_result':1, 
-                                                        '_id':0}))
+                                                        '_id':1}))
             pred_dict = {}
             for pred in latest_pred_in_id:
-                pred_dict[pred['tile_id']] = pred['classification_result']
+                pred_dict[pred['tile_id']] = {'id' : pred['_id'], 'res' : pred['classification_result']}
             pred_dict
             return pred_dict
+    except Exception as e:
+        return e
+
+def getTileAllDetails(forest_id, tile_id, date):
+    try:
+        tile_data = db.forestTiles.find_one({'forest_id':forest_id, 'tile_id' : tile_id, "save_time" : {"$lte" : date}})
+        return tile_data
     except Exception as e:
         return e
 

@@ -7,7 +7,8 @@ import cv2
 import pickle
 
 from defom.api.utils import expect
-from defom.db import save_forest, save_forestTile, create_forest_page, get_latest_forest_tiles, get_user, get_forest_tiles
+from defom.db import (save_forest, save_forestTile, create_forest_page,
+ get_latest_forest_tiles, get_user, get_forest_tiles, getTileAllDetails)
 from defom.src.SentinelhubClient import SentilhubClient
 
 from flask_jwt_extended import (
@@ -71,7 +72,7 @@ class RegisterForest(Resource):
         except Exception as e:
             return make_response(jsonify({'error': str(e)}), 411)
 
-class ForestView(Resource):
+class ForestTileDetails(Resource):
     def _get_RGB(self,image):
         rgb = cv2.normalize(image[:,:,[2,1,0]], None, 0, 255, cv2.NORM_MINMAX, dtype=cv2.CV_8U)
         return rgb
@@ -101,21 +102,30 @@ class ForestView(Resource):
         ndvi = (image[...,3]-image[...,2])/(image[...,3]+image[...,2])
         return ndvi
 
-    def get(self, forest_id, date, mode):
+    @jwt_required
+    def post(self):
+
+        try:
+            post_data = request.get_json()
+            forest_id = expect(post_data['forest_id'], str, 'forest_id')
+            tile_id = expect(post_data['tile_id'], str, 'tile_id')
+            date = expect(post_data['date'], str, 'date')
+        except Exception as e:
+            return make_response(jsonify({'error': str(e)}), 400)
+
         
         try:
-            resp = []
-            image_list, image_id_list = get_latest_forest_tiles(forest_id, date)
-            mode_map = {'rgb' : self._get_RGB, 'nvdi': self._get_NDVI, 'savi' : self._get_SAVI, 'vari' : self._get_VARI, 'mndwi' : self._get_MNDWI, 'ndwi' : self._get_NDWI, 'fm' : self._get_FM}
-            image_list = [mode_map[mode](im) for im in image_list]
-            for i, img in enumerate(image_list):
-                doc = {
-                    'forest_id' : forest_id,
-                    'tile_id': image_id_list[i],
-                    'tile_imge': pickle.dumps(img)
-                }
-                resp.append(doc)
-            return resp
+            tile_data = getTileAllDetails(forest_id, tile_id, date)
+            # mode_map = {'rgb' : self._get_RGB, 'nvdi': self._get_NDVI, 'savi' : self._get_SAVI, 'vari' : self._get_VARI, 'mndwi' : self._get_MNDWI, 'ndwi' : self._get_NDWI, 'fm' : self._get_FM}
+            # image_list = [mode_map[mode](im) for im in image_list]
+            # for i, img in enumerate(image_list):
+            #     doc = {
+            #         'forest_id' : forest_id,
+            #         'tile_id': image_id_list[i],
+            #         'tile_imge': pickle.dumps(img)
+            #     }
+            #     resp.append(doc)
+            return make_response(jsonify(tile_data), 200)
         except Exception as e:
                 return make_response(jsonify(e), 411)
 
@@ -151,3 +161,4 @@ class ForestTiles(Resource):
             return make_response(jsonify(res), 200)
         except Exception as e:
             return make_response(jsonify({'error': str(e)}), 400) 
+

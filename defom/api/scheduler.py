@@ -9,7 +9,10 @@ import pickle
 
 from pymongo import UpdateOne
 
-from defom.db import get_all_forest_tiles, save_forestTile, get_forest_ids, get_latest_forest_tiles, forestTile_bulkWrite, forests_bulkWrite, get_all_forests_tile_details, get_forests_pred_bnd, get_forest_tile_inf, get_tile_view_id, forestPage_bulkWrite
+from defom.db import (get_all_forest_tiles, save_forestTile, 
+get_forest_ids, get_latest_forest_tiles, forestTile_bulkWrite, 
+forests_bulkWrite, get_all_forests_tile_details, get_forests_pred_bnd, 
+get_forest_tile_inf, get_tile_view_id, forestPage_bulkWrite, getTileAllDetails)
 from defom.src.SentinelhubClient import SentilhubClient
 from defom.src.DLClient import ClassiModel, MaskModel
 
@@ -178,17 +181,22 @@ def set_latest_threat_daily():
             updated_threat_dict = {}
             for tile in forest_tiles:
                 cur_threat = set(tile['infered_threat_class'])
-                latest_threat = set(forest_tile_today_pred[tile['tile_id']])
+                latest_threat = set(forest_tile_today_pred[tile['tile_id']]['res'])
                 diff_threat = list(latest_threat - cur_threat)
                 valid_threat = [x for x in diff_threat if x in threat_list]
-                updated_threat_dict[tile['tile_id']] = valid_threat
+                if valid_threat != []:
+                    updated_threat_dict[tile['tile_id']] = {'threat' : valid_threat, 'id': forest_tile_today_pred[tile['tile_id']]['id']}
 
             update_requests = []
+            update_requests_ft = []
             for i in updated_threat_dict:
-                query = UpdateOne({'_id': forest_id, 'forest_tiles.tile_id':i}, {'$set' : {'forest_tiles.$.infered_threat_class' : updated_threat_dict[i], 'inference_updated_date' : today}})
+                query = UpdateOne({'_id': forest_id, 'forest_tiles.tile_id':i}, {'$set' : {'forest_tiles.$.infered_threat_present' : True, 'inference_updated_date' : today, 'update_view_id': updated_threat_dict[i]['id']}})
                 update_requests.append(query)
+                query = UpdateOne({'_id': updated_threat_dict[i]['id']}, {'$set' : {'new_threat' : updated_threat_dict[i]['threat'], 'inference_updated_date' : today}})
+                update_requests_ft.append(query)
 
             forests_bulkWrite(update_requests)
+            forestTile_bulkWrite(update_requests_ft)
     except Exception as e:
             return make_response(jsonify({'error': str(e)}), 400)
     
