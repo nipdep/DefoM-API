@@ -150,6 +150,13 @@ def get_tile_view_id(forest_id, tile_ids, date):
     except Exception as e:
         return e
 
+def get_forest_tiles(forest_id):
+    try:
+        acc_tiles = db.forests.find_one({'_id':forest_id}, {'forest_name':1, 'forest_tiles':1})
+        return acc_tiles
+    except Exception as e:
+        return e
+
 ################### USER realted function ###############################
 
 def add_user(username, email, password):

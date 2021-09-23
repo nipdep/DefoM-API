@@ -1,5 +1,5 @@
 
-
+from datetime import datetime
 from flask import make_response, request, jsonify
 from flask_restful import Resource, fields, marshal_with
 
@@ -7,8 +7,12 @@ import cv2
 import pickle
 
 from defom.api.utils import expect
-from defom.db import save_forest, save_forestTile, create_forest_page, get_latest_forest_tiles
+from defom.db import save_forest, save_forestTile, create_forest_page, get_latest_forest_tiles, get_user, get_forest_tiles
 from defom.src.SentinelhubClient import SentilhubClient
+
+from flask_jwt_extended import (
+    jwt_required  
+)
 
 class Forest(object):
 
@@ -115,4 +119,30 @@ class ForestView(Resource):
         except Exception as e:
                 return make_response(jsonify(e), 411)
 
+class ForestTiles(Resource):
+    @jwt_required
+    def post(self):
+        try:
+            post_data = request.get_json()
+            email = expect(post_data['email'], str, 'email')
+            date = expect(post_data['date'], str, 'date')
+        except Exception as e:
+            return make_response(jsonify({'error': str(e)}), 400)
 
+        try:
+            dt_date = datetime.strptime(date, '%Y-%m-%d')
+            dt_date = datetime.combine(dt_date, datetime.min.time())
+        except Exception as e:
+            return make_response(jsonify({'error': str(e)}), 400)
+
+        try:
+            doc = get_user(email)
+            forest_id = doc['forest_id']
+        except Exception as e:
+            return make_response(jsonify({'error': str(e)}), 400)   
+
+        try:
+            res = get_forest_tiles(forest_id)
+            return make_response(jsonify(res), 200)
+        except Exception as e:
+            return make_response(jsonify({'error': str(e)}), 400) 
