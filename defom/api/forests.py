@@ -5,6 +5,8 @@ from flask_restful import Resource, fields, marshal_with
 
 import cv2
 import pickle
+from bson.objectid import ObjectId
+
 
 from defom.api.utils import expect
 from defom.db import (save_forest, save_forestTile, create_forest_page,
@@ -102,20 +104,27 @@ class ForestTileDetails(Resource):
         ndvi = (image[...,3]-image[...,2])/(image[...,3]+image[...,2])
         return ndvi
 
-    @jwt_required
+    # @jwt_required
     def post(self):
 
         try:
             post_data = request.get_json()
             forest_id = expect(post_data['forest_id'], str, 'forest_id')
-            tile_id = expect(post_data['tile_id'], str, 'tile_id')
+            tile_id = expect(post_data['tile_id'], int, 'tile_id')
             date = expect(post_data['date'], str, 'date')
+        except Exception as e:
+            return make_response(jsonify({'error': str(e)}), 400)
+
+        try:
+            dt_date = datetime.strptime(date, '%Y-%m-%d')
+            dt_date = datetime.combine(dt_date, datetime.min.time())
         except Exception as e:
             return make_response(jsonify({'error': str(e)}), 400)
 
         
         try:
-            tile_data = getTileAllDetails(forest_id, tile_id, date)
+            forest_id = ObjectId(forest_id)
+            tile_data = getTileAllDetails(forest_id, tile_id, dt_date)
             # mode_map = {'rgb' : self._get_RGB, 'nvdi': self._get_NDVI, 'savi' : self._get_SAVI, 'vari' : self._get_VARI, 'mndwi' : self._get_MNDWI, 'ndwi' : self._get_NDWI, 'fm' : self._get_FM}
             # image_list = [mode_map[mode](im) for im in image_list]
             # for i, img in enumerate(image_list):
