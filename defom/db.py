@@ -51,12 +51,13 @@ def create_forest_page(forest_data):
 
 def get_all_forest_tiles():
     try:
-        cursor = db.forests.find({}, {'forest_tiles' : 1})
+        cursor = db.forests.find({}, {'forest_tiles' : 1, 'status':1})
         dict_list = []
         for fr in cursor:
             fr_dict = {}
             fr_dict['forest_id'] = fr['_id']
             fr_dict['tile_list'] = fr['forest_tiles']
+            fr_dict['status'] = fr['status']
             dict_list.append(fr_dict)
         return dict_list
     except Exception as e:
@@ -101,11 +102,11 @@ def get_latest_forest_tiles(forest_id, date, state=1):
             latest_pred_in_id = list(db.forestTiles.find({'forest_id' : forest_id,
                                                          'save_time': date}, 
                                                         {'tile_id' : 1, 
-                                                        'classification_result':1, 
+                                                        'class_infered':1, 
                                                         '_id':1}))
             pred_dict = {}
             for pred in latest_pred_in_id:
-                pred_dict[pred['tile_id']] = {'id' : pred['_id'], 'res' : pred['classification_result']}
+                pred_dict[pred['tile_id']] = {'id' : pred['_id'], 'res' : pred['class_infered']}
             pred_dict
             return pred_dict
     except Exception as e:

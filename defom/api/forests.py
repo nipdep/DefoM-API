@@ -50,6 +50,7 @@ class RegisterForest(Resource):
             forest_data['country'] = expect(post_data['country'], str, 'country')
             forest_data['location'] = expect(post_data['location'], list, 'country')
             forest_data['boundary'] = expect(post_data['forest_boundary'], dict, 'forest_boundary')
+            forest_data['status'] = "new"
         except Exception as e:
             return make_response(jsonify({'error': str(e)}), 400)
         
