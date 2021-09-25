@@ -1,17 +1,23 @@
 
 from datetime import datetime
-from flask import make_response, request, jsonify
+from flask import make_response, request, jsonify, send_file
 from flask_restful import Resource, fields, marshal_with
 
 import cv2
+import os, glob
 import pickle
 from bson.objectid import ObjectId
 
 
 from defom.api.utils import expect
 from defom.db import (save_forest, save_forestTile, create_forest_page,
- get_latest_forest_tiles, get_user, get_forest_tiles, getTileAllDetails)
+ get_latest_forest_tiles, get_user, get_forest_tiles, getTileAllDetails, getTileView)
 from defom.src.SentinelhubClient import SentilhubClient
+
+
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
 
 from flask_jwt_extended import (
     jwt_required  
@@ -77,35 +83,6 @@ class RegisterForest(Resource):
             return make_response(jsonify({'error': str(e)}), 411)
 
 class ForestTileDetails(Resource):
-    def _get_RGB(self,image):
-        rgb = cv2.normalize(image[:,:,[2,1,0]], None, 0, 255, cv2.NORM_MINMAX, dtype=cv2.CV_8U)
-        return rgb
-    
-    def _get_FM(self,image):
-        fm = image[:,:,4]/image[:,:,3]
-        return fm
-
-    def _get_NDWI(self,image):
-        ndwi = (image[:,:,3]-image[:,:,4])/(image[:,:,3]+image[:,:,4])
-        return ndwi
-
-    def _get_MNDWI(self,image):
-        mndwi = (image[:,:,1]-image[:,:,4])/(image[:,:,1]+image[:,:,4])
-        return mndwi
-
-    def _get_VARI(self,image):
-        vari = (image[:,:,1]-image[:,:,2])/(image[:,:,1]+image[:,:,2]-image[:,:,0])
-        return vari
-
-    def _get_SAVI(self,image):
-        L = 0.5
-        savi = ((image[...,3]-image[...,2])/(image[...,3]+image[...,2]+L))*(1+L)
-        return savi
-
-    def _get_NDVI(self,image):
-        ndvi = (image[...,3]-image[...,2])/(image[...,3]+image[...,2])
-        return ndvi
-
     # @jwt_required
     def post(self):
 
@@ -139,6 +116,72 @@ class ForestTileDetails(Resource):
             return make_response(jsonify(tile_data), 200)
         except Exception as e:
                 return make_response(jsonify(e), 411)
+
+class ForestTileView(Resource):
+
+    def __init__(self):
+        self.dir = './defom/images'
+        self.cached_image = {}
+
+    def _get_RGB(self,image):
+        rgb = cv2.normalize(image[:,:,[2,1,0]], None, 0, 255, cv2.NORM_MINMAX, dtype=cv2.CV_8U)
+        return rgb
+    
+    def _get_FM(self,image):
+        fm = image[:,:,4]/image[:,:,3]
+        return fm
+
+    def _get_NDWI(self,image):
+        ndwi = (image[:,:,3]-image[:,:,4])/(image[:,:,3]+image[:,:,4])
+        return ndwi
+
+    def _get_MNDWI(self,image):
+        mndwi = (image[:,:,1]-image[:,:,4])/(image[:,:,1]+image[:,:,4])
+        return mndwi
+
+    def _get_VARI(self,image):
+        vari = (image[:,:,1]-image[:,:,2])/(image[:,:,1]+image[:,:,2]-image[:,:,0])
+        return vari
+
+    def _get_SAVI(self,image):
+        L = 0.5
+        savi = ((image[...,3]-image[...,2])/(image[...,3]+image[...,2]+L))*(1+L)
+        return savi
+
+    def _get_NDVI(self,image):
+        ndvi = (image[...,3]-image[...,2])/(image[...,3]+image[...,2])
+        return ndvi
+
+    def folder_cleaner(self):
+        filelist = glob.glob(os.path.join(self.dir, "*.png"))
+        for f in filelist:
+            os.remove(f)
+
+    def get(self, forest_id, tile_id, mode):
+        self.folder_cleaner()
+
+        forest_id = str(forest_id)
+        tile_id = int(tile_id)
+        f_id = ObjectId(forest_id)
+        ref_id = str(forest_id)+"_"+str(tile_id)
+        if (self.cached_image == {}) or (self.cached_image["ref_id"] != ref_id):
+            ch5_image = getTileView(f_id, tile_id)
+            self.cached_image['ref_id'] = ref_id
+            self.cached_image['image'] = ch5_image
+        else:
+            ch5_image = self.cached_image['image']
+
+        mode_map = {'rgb' : self._get_RGB, 'nvdi': self._get_NDVI, 'savi' : self._get_SAVI, 'vari' : self._get_VARI, 'mndwi' : self._get_MNDWI, 'ndwi' : self._get_NDWI, 'fm' : self._get_FM}
+        prep_image = mode_map[mode](ch5_image)
+
+        f_path = f"./defom/images/{ref_id}_{mode}.png"
+        if mode == "rgb":
+            plt.imsave(f_path, prep_image)
+        else:
+            plt.imsave(f_path, prep_image, cmap='RdYlGn', vmin=-1, vmax=1)
+        return send_file(f_path)
+        
+
 
 class ForestTiles(Resource):
     @jwt_required
