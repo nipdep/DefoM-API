@@ -11,8 +11,13 @@ from bson import json_util, ObjectId
 from datetime import datetime, timedelta
 
 
+<<<<<<< HEAD
 from defom.api.users import HandleForestOfficer, User, RegisterUser, LoginUser, logoutUser, Hello, HandleForestAdmin
 from defom.api.forests import RegisterForest
+=======
+from defom.api.users import User, RegisterUser, LoginUser, logoutUser, Hello
+from defom.api.forests import RegisterForest, ForestTileView
+>>>>>>> 6688f8a46db0f44b0e3be0fd6a5d3658124b1d38
 from defom.api.scheduler import GetTiles, save_tiles_daily, make_class_inf_daily, MakeClassInf, set_latest_threat_daily, set_forest_view, set_mask_daily
 
 
@@ -55,8 +60,12 @@ def create_api():
     api.add_resource(RegisterUser, '/user/register')
     api.add_resource(LoginUser, '/user/login')
     api.add_resource(logoutUser, '/user/logout')
+<<<<<<< HEAD
     api.add_resource(HandleForestAdmin, '/user/forestAdmin')
     api.add_resource(HandleForestOfficer, '/user/forestOfficer')
+=======
+    api.add_resource(ForestTileView, '/forest/get_tile_view/<forest_id>/<tile_id>/<mode>')
+>>>>>>> 6688f8a46db0f44b0e3be0fd6a5d3658124b1d38
     api.add_resource(GetTiles, '/gettiles')  ## testing resources
     api.add_resource(MakeClassInf, '/classinf') ## testing resources
     api.add_resource(Hello, '/hello')

@@ -13,9 +13,9 @@ class SentilhubClient(object):
 
     def set_config(self):
         if not self.config.sh_client_id or not self.config.sh_client_secret:
-            self.config.instance_id = '464e0857-a72d-4c5d-b0d5-a96b724301d7'
-            self.config.sh_client_id = '2a713948-9158-4185-85df-4f0d271b644d'
-            self.config.sh_client_secret = ":%lG1hmr?J#nkvmjq/9.(K*Tz[q:7ES-kN>{4A}P"
+            self.config.instance_id = 'de111d9c-17c9-4d2c-acce-c5111d8a09d2'
+            self.config.sh_client_id = '82fada4f-0665-4507-ab18-e261040d8e81'
+            self.config.sh_client_secret = "bGOodAi?zV/u}m,:_#]++qlUWIanEWI&{44Q{o6F"
             self.config.save()
 
     def get_status(self):
@@ -78,7 +78,7 @@ class SentilhubClient(object):
                 SentinelHubRequest.output_response('default', MimeType.PNG)
             ],
             geometry=full_geometry,
-            size=(512, 512),
+            size=(256, 256),
             config=self.config
         )
         image = request.get_data()[0]
@@ -135,7 +135,7 @@ class SentilhubClient(object):
                 SentinelHubRequest.output_response('default', MimeType.TIFF)
             ],
             bbox=tile_bbox,
-            size=tile_size,
+            size=(242,242),
             config=self.config
         )
         true_color_imgs = request_true_color.get_data()
