@@ -216,7 +216,7 @@ def save_tiles_daily():
                     for doc in documents:
                         if doc['tile_id'] in accessing_tiles:
                             ## update forestTile doc. by mask
-                            doc['infered_mask'] = inferences[j,...]
+                            doc['mask'] = inferences[j,...]
                             j+=1
                             
                     logger.info(f"[INFERENCE FOREST MASK] | forest_id : {forest_id}, num of forest tiles : {len(inferences)}")

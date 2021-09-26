@@ -114,7 +114,7 @@ def get_latest_forest_tiles(forest_id, date, state=1):
 
 def getTileAllDetails(forest_id, tile_id, date):
     try:
-        tile_data = db.forestTiles.find_one({'forest_id':forest_id, 'tile_id' : tile_id, "save_time" : {"$lte" : date}}, {'image':0 })
+        tile_data = db.forestTiles.find_one({'forest_id':forest_id, 'tile_id' : tile_id, "save_time" : {"$lte" : date}}, {'image':0, 'mask':0})
         return tile_data
     except Exception as e:
         return e
