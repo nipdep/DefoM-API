@@ -2,12 +2,10 @@
 from flask_restful import Resource
 from flask import jsonify, Blueprint, make_response, request, session
 from defom.api.utils import expect
-from defom.db import get_user_by_name, add_user, get_user, login_user, logout_user
+from defom.db import get_user_by_name, add_user, get_user, login_user, logout_user, save_forest_admin, add_forest_admin, add_forest_officer, save_forest_officer, get_forest_officers
 from bson.json_util import dumps, loads
 from werkzeug.security import generate_password_hash, check_password_hash
 from jwt import PyJWT
-import datetime
-import json
 
 from flask_jwt_extended import (
     jwt_required, create_access_token,
@@ -136,6 +134,90 @@ class LoginUser(Resource):
             }
             return make_response(jsonify(response_object), 500)
 
+class HandleForestAdmin(Resource):
+    def post(self):        
+        try:
+            post_data = request.get_json()
+            username = expect(post_data['first_name'], str, 'username')
+            password = expect(post_data['password'], str, 'password')
+            email = expect(post_data['username'], str, 'email')
+        except Exception as e:
+            return make_response(jsonify({'error': str(e)}), 400)
+
+        existing_user = get_user(email)
+
+        if existing_user:
+            return "This forest admin already in the system",401
+
+        try:
+            res = add_forest_admin(username,  email, bcrypt.generate_password_hash(password=password.encode('utf8')).decode("utf-8"))
+            # return make_response(jsonify({"status" : str(res.acknowledged)}), 200)
+        except Exception as e:
+            return make_response(jsonify({'error': str(e)}), 411)
+
+        try:
+            new_fid = res.inserted_id
+            forest_admin_data = {}
+            forest_admin_data['username'] = expect(post_data['username'], str, 'username')
+            forest_admin_data['first_name'] = expect(post_data['first_name'], str, 'first_name')
+            forest_admin_data['last_name'] = expect(post_data['last_name'], str, 'last_name')
+            forest_admin_data['forest_name'] = expect(post_data['forest_name'], str, 'forest_name')
+            password = expect(post_data['password'], str, 'password')
+            forest_admin_data['password'] = bcrypt.generate_password_hash(password=password.encode('utf8')).decode("utf-8")
+            forest_admin_data['phone'] = expect(post_data['phone'], str, 'phone')
+            forest_admin_data['user_id'] = new_fid
+            result = save_forest_admin(forest_admin_data)
+            return make_response(jsonify({"status" : str(result.acknowledged)}), 200)
+        except Exception as e:
+            return make_response(jsonify({'error': str(e)}), 411)
+
+class HandleForestOfficer(Resource):
+    def post(self):        
+        try:
+            post_data = request.get_json()
+            username = expect(post_data['first_name'], str, 'username')
+            password = expect(post_data['password'], str, 'password')
+            email = expect(post_data['username'], str, 'email')
+        except Exception as e:
+            return make_response(jsonify({'error': str(e)}), 400)
+
+        existing_user = get_user(email)
+
+        if existing_user:
+            return "This forest officer already in the system",401
+
+        try:
+            res = add_forest_officer(username,  email, bcrypt.generate_password_hash(password=password.encode('utf8')).decode("utf-8"))
+            # return make_response(jsonify({"status" : str(res.acknowledged)}), 200)
+        except Exception as e:
+            return make_response(jsonify({'error': str(e)}), 411)
+
+        try:
+            new_fid = res.inserted_id
+            forest_officer_data = {}
+            forest_officer_data['username'] = expect(post_data['username'], str, 'username')
+            forest_officer_data['first_name'] = expect(post_data['first_name'], str, 'first_name')
+            forest_officer_data['last_name'] = expect(post_data['last_name'], str, 'last_name')
+            forest_officer_data['forest_name'] = expect(post_data['forest_name'], str, 'forest_name')
+            password = expect(post_data['password'], str, 'password')
+            forest_officer_data['password'] = bcrypt.generate_password_hash(password=password.encode('utf8')).decode("utf-8")
+            forest_officer_data['phone'] = expect(post_data['phone'], str, 'phone')
+            forest_officer_data['user_id'] = new_fid
+            result = save_forest_officer(forest_officer_data)
+            return make_response(jsonify({"status" : str(result.acknowledged)}), 200)
+        except Exception as e:
+            return make_response(jsonify({'error': str(e)}), 411)
+
+    def get(self):
+        try:
+            forest_officers = get_forest_officers()
+            print(forest_officers)
+            return forest_officers,200
+        except Exception as e:
+            return make_response(jsonify({'error': str(e)}), 411)
+
+
+       
 class logoutUser(Resource):
     @jwt_required
     def post(self):
