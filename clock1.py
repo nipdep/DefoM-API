@@ -1,4 +1,4 @@
-
+#%%
 from apscheduler.schedulers.background import BackgroundScheduler, BlockingScheduler
 from apscheduler.events import EVENT_JOB_EXECUTED, EVENT_JOB_ERROR
 
@@ -25,20 +25,20 @@ CLASS_INPUT_SHAPE = (241, 242)
 MASK_INPUT_SHAPE = (128, 128)
 
 sched = BlockingScheduler()
+#%%
 
+# def get_RGB(image):
+#     rgb = cv2.normalize(image[:,:,[2,1,0]], None, 0, 255, cv2.NORM_MINMAX, dtype=cv2.CV_8U)
+#     return rgb
 
-def get_RGB(image):
-    rgb = cv2.normalize(image[:,:,[2,1,0]], None, 0, 255, cv2.NORM_MINMAX, dtype=cv2.CV_8U)
-    return rgb
-
-def resize(image, size=(242,242)):
-    return cv2.resize(image, size, interpolation=cv2.INTER_AREA)
+# def resize(image, size=(242,242)):
+#     return cv2.resize(image, size, interpolation=cv2.INTER_AREA)
 
 def class_inf(image_list):
     try:
-        image_list = [get_RGB(im) for im in image_list]
-        image_list = [resize(img) for img in image_list]
-        np_image_list = np.array(image_list)/255
+        # image_list = [get_RGB(im) for im in image_list]
+        # image_list = [resize(img) for img in image_list]
+        np_image_list = np.array(image_list)
 
         class_model = ClassiModel.getInstance()
         inferences = class_model.inference(np_image_list)
@@ -74,7 +74,7 @@ def input_creator(image1, image2):
     return inf_img
 
 ## daily satellite feed extraction
-@sched.scheduled_job('cron', hour=21, minute=47, name="get_forest_tiles")
+@sched.scheduled_job('cron', hour=16, minute=41, name="get_forest_tiles")
 def save_tiles_daily():
     dict_list = get_all_forest_tiles()
     sentinel_client = SentilhubClient()    ## Init sentinelHUb invoker
@@ -108,7 +108,7 @@ def save_tiles_daily():
                     ## get forest tile satellite image of yesterday.
                     s_image = sentinel_client.get_tile(coords, 10, start_date, end_date)[0]
                     sat_image = s_image[:,:,:5]
-                    image_list.append(sat_image)
+                    image_list.append(sat_image[:,:,:3])
                     ## binarize forest image to send in json request
                     binary_image = pickle.dumps(sat_image)
                 except Exception as e:
@@ -148,11 +148,11 @@ def save_tiles_daily():
 
                 if forest_status != "new":
                     ## get last forest tile view in the system
-                    forest_tile_today_pred = get_latest_forest_tiles(forest_id, end_date)
+                    forest_tile_today_pred = get_latest_forest_tiles(forest_id, end_date_dt, 2)
                     for doc in documents:
                         ## find new threat type in the today forest tile
                         cur_threat = set(doc['class_infered'])
-                        latest_threat = set(forest_tile_today_pred[tile['tile_id']]['res'])
+                        latest_threat = set(forest_tile_today_pred[doc['tile_id']]['res'])
                         diff_threat = list(latest_threat - cur_threat)
                         valid_threat = [x for x in diff_threat if x in threat_list]
                         if valid_threat != []:
@@ -183,16 +183,16 @@ def save_tiles_daily():
 
 
             try:
-                if forest_status != "new":
-                ## take updatable forest tiles from data-passing dict.
+                if (forest_status != "new") and (masking_tiles['tile_id'] != []):
+                    ## take updatable forest tiles from data-passing dict.
                     accessing_tiles = masking_tiles['tile_id']
                     ## take yesterday forest view
                     acc_ys_tiles = get_tile_view_id(forest_id, accessing_tiles, end_date_dt)
-
+                    # logger.info(f"masking_tiles {masking_tiles}")
                     image_td_dict = {}
                     for i, iid in enumerate(masking_tiles['tile_id']):
                         image_td_dict[iid] = masking_tiles['tile_image'][i]
-                    logger.info(f"image_td_dict {image_td_dict}")
+                    # logger.info(f"image_td_dict {image_td_dict}")
                     # image_id_td_dict = {}
                     # for tile in acc_td_tiles:
                     #     image_id_td_dict[tile['tile_id']] = pickle.loads(tile['_id'])
@@ -201,26 +201,34 @@ def save_tiles_daily():
                     image_ys_dict = {}
                     for tile in acc_ys_tiles:
                         image_ys_dict[tile['tile_id']] = pickle.loads(tile['image'])
-                    logger.info(f"image_ys_dict : {image_ys_dict}")
+                    # logger.info(f"image_ys_dict : {image_ys_dict}")
+
                     inf_image_dict = {}
                     for i in image_td_dict:
-                        inf_image_dict[i] = input_creator(image_td_dict[i][...,1], image_ys_dict[i][...,1])
-                    logger.info(f"image_ys_dict : {image_ys_dict}")
+                        inf_image_dict[i] = input_creator(image_td_dict[i], image_ys_dict[i])
+                    # logger.info(f"inf_image_dict : {inf_image_dict}")
+
                     # rgb_inf_images = [get_RGB(im)[:,:,1] for im in list(inf_image_dict.values())]      
-                    inf_images = np.array(inf_image_dict.values())
-                    logger.info(f"get single channel inputs : {inf_images.shape}")
+                    inf_images = np.array([img for i,img in inf_image_dict.items()])
+                    # logger.info(f"get single channel inputs : {inf_images.shape}")
                     ## get segmentation model inference results
-                    inferences = mask_model.inference(inf_images)
-                    logger.info(f"get inference : {inferences.shape}")
+                    
+                    mask_inferences = mask_model.inference(inf_images)
+                    # logger.info(f"get inference : {mask_inferences.shape}")
+
                     j = 0
                     for doc in documents:
                         if doc['tile_id'] in accessing_tiles:
                             ## update forestTile doc. by mask
-                            doc['mask'] = inferences[j,...]
+                            doc['mask'] = pickle.dumps(mask_inferences[j,...])
+                            doc['mask_present'] = True
                             j+=1
                             
-                    logger.info(f"[INFERENCE FOREST MASK] | forest_id : {forest_id}, num of forest tiles : {len(inferences)}")
+                    logger.info(f"[INFERENCE FOREST MASK] | forest_id : {forest_id}, num of forest tiles : {len(mask_inferences)}")
                 else:
+                    for doc in documents:
+                        doc['mask_present'] = False
+
                     logger.info(f"[INFERENCE FOREST MASK] | forest_id : {forest_id}, is new.")
             except Exception as e:
                 return print(e)
@@ -238,6 +246,7 @@ def save_tiles_daily():
         
     try:
         ## insert all the today forestTile doc. to db
+
         result = save_forestTile(documents)
         logger.info(f"[WRITE FOREST TILES] | forest_id : {forest_id}")
         ## update forests on todays results
@@ -249,6 +258,9 @@ def save_tiles_daily():
     except Exception as e:
         return print(e)
 
+
+save_tiles_daily()
+#%%
 ## daily threat type inference on latest collected data
 # @sched.scheduled_job('interval', days=1, name="forest_threat_detection")
 def make_class_inf_daily():
@@ -345,7 +357,7 @@ def set_mask_daily():
             for i in image_td_dict:
                 inf_image_dict[i] = input_creator(image_td_dict[i], image_ys_dict[i])
 
-            rgb_inf_images = [get_RGB(im)[:,:,1] for im in list(inf_image_dict.values())]      
+            rgb_inf_images = [im[:,:,1] for im in list(inf_image_dict.values())]      
             inf_images = np.array(rgb_inf_images)
 
             inferences = mask_model.inference(inf_images)
