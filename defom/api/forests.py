@@ -10,7 +10,7 @@ from bson.objectid import ObjectId
 
 
 from defom.api.utils import expect
-from defom.db import (save_forest, save_forestTile, create_forest_page,
+from defom.db import (get_tile_view, save_forest, save_forestTile, create_forest_page,
  get_latest_forest_tiles, get_user, get_forest_tiles, getTileAllDetails, getTileView)
 from defom.src.SentinelhubClient import SentilhubClient
 
@@ -157,15 +157,13 @@ class ForestTileView(Resource):
         for f in filelist:
             os.remove(f)
 
-    def get(self, forest_id, tile_id, mode):
+    def get(self, tile_id, mode):
         self.folder_cleaner()
 
-        forest_id = str(forest_id)
-        tile_id = int(tile_id)
-        f_id = ObjectId(forest_id)
-        ref_id = str(forest_id)+"_"+str(tile_id)
+        t_id = ObjectId(tile_id)
+        ref_id = str(tile_id)
         if (self.cached_image == {}) or (self.cached_image["ref_id"] != ref_id):
-            ch5_image = getTileView(f_id, tile_id)
+            ch5_image = get_tile_view(t_id)
             self.cached_image['ref_id'] = ref_id
             self.cached_image['image'] = ch5_image
         else:
