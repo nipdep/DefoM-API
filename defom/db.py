@@ -187,7 +187,7 @@ def get_tile_view(tile_id):
 
 def add_user(username, email, password):
     try:
-        return db.users.insert_one({'username' : username, 'password' : password, 'email' : email, 'user_type' : 'citizen'})
+        return db.users.insert_one({'username' : username, 'password' : password, 'email' : email, 'user_type' : 'forestAdmin'})
     except Exception as e:
         return e
 
@@ -228,3 +228,35 @@ def logout_user(email):
         return {"success": True}
     except Exception as e:
         return {"error": e}   
+
+def save_forest_admin(forest_admin_data):
+    try:
+        res = db.forestAdmins.insert_one(forest_admin_data)
+        return res
+    except Exception as e:
+        return e
+
+def add_forest_admin(username, email, password):
+    try:
+        return db.users.insert_one({'username' : username, 'password' : password, 'email' : email, 'user_type' : 'forestAdmin'})
+    except Exception as e:
+        return e
+
+def add_forest_officer(username, email, password):
+    try:
+        return db.users.insert_one({'username' : username, 'password' : password, 'email' : email, 'user_type' : 'forestOfficer'})
+    except Exception as e:
+        return e
+
+def save_forest_officer(forest_officer_data):
+    try:
+        res = db.forestOfficers.insert_one(forest_officer_data)
+        return res
+    except Exception as e:
+        return e
+
+def get_forest_officers():
+    try:
+        return "hello World"
+    except Exception as e:
+        return e
