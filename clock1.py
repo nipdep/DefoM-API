@@ -165,7 +165,10 @@ def save_tiles_daily():
                             masking_tiles['tile_image'].append(doc['raw_image'])
                             ## create update query to forest on new tile 
                             query = UpdateOne({'_id': doc['forest_id'], 'forest_tiles.tile_id':doc['tile_id']}, {'$set' : {'forest_tiles.$.infered_threat_present' : True, 'forest_tiles.$.inference_updated_date' : today_dt, 'forest_tiles.$.update_view_id': doc['_id']}})
-                            update_requests_1.append(query)  
+                            update_requests_1.append(query) 
+                        else:
+                            query = UpdateOne({'_id': doc['forest_id'], 'forest_tiles.tile_id':doc['tile_id']}, {'$set' : {'forest_tiles.$.infered_threat_present' : False}})
+                            update_requests_1.append(query) 
                 else:
                     ## if forest is new then update all the forest tile reference and set into entire view updatable list
                     view_collectable = True
@@ -223,6 +226,8 @@ def save_tiles_daily():
                             doc['mask'] = pickle.dumps(mask_inferences[j,...])
                             doc['mask_present'] = True
                             j+=1
+                        else:
+                            doc['mask_present'] = False
                             
                     logger.info(f"[INFERENCE FOREST MASK] | forest_id : {forest_id}, num of forest tiles : {len(mask_inferences)}")
                 else:
