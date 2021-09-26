@@ -30,13 +30,8 @@ from bson import json_util, ObjectId
 from datetime import datetime, timedelta
 
 
-<<<<<<< HEAD
 from defom.api.users import Hello, User, RegisterUser, LoginUser, logoutUser, HandleForestAdmin, HandleForestOfficer
-from defom.api.forests import RegisterForest, ForestTiles, ForestTileDetails
-=======
-from defom.api.users import Hello, User, RegisterUser, LoginUser, logoutUser
 from defom.api.forests import RegisterForest, ForestTiles, ForestTileDetails, ForestTileView
->>>>>>> 6688f8a46db0f44b0e3be0fd6a5d3658124b1d38
 from defom.api.scheduler import GetTiles, save_tiles_daily, make_class_inf_daily, MakeClassInf, set_latest_threat_daily, set_forest_view, set_mask_daily
 
 import configparser

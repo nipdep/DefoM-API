@@ -249,6 +249,7 @@ def save_forest_officer(forest_officer_data):
 
 def get_forest_officers():
     try:
-        return "hello World"
+        res = list(db.forestOfficers.find({}, {'_id':0, 'username': 1, 'first_name': 1, 'last_name': 1, 'forest_name': 1, 'phone': 1}))
+        return res
     except Exception as e:
         return e

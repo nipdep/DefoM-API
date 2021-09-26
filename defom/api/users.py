@@ -211,7 +211,6 @@ class HandleForestOfficer(Resource):
     def get(self):
         try:
             forest_officers = get_forest_officers()
-            print(forest_officers)
             return forest_officers,200
         except Exception as e:
             return make_response(jsonify({'error': str(e)}), 411)
