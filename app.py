@@ -84,7 +84,7 @@ api.add_resource(LoginUser, '/user/login')
 api.add_resource(logoutUser, '/user/logout')
 api.add_resource(ForestTiles, '/forest/get_tiles')
 api.add_resource(ForestTileDetails, '/forest/get_tile_details')
-api.add_resource(ForestTileView, '/forest/get_tile_view/<forest_id>/<tile_id>/<mode>')
+api.add_resource(ForestTileView, '/forest/get_tile_view/<tile_id>/<mode>')
 api.add_resource(GetTiles, '/gettiles')  ## testing resources
 api.add_resource(MakeClassInf, '/classinf') ## testing resources
 api.add_resource(Hello, '/hello')
