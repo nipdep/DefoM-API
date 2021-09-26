@@ -211,7 +211,15 @@ class HandleForestOfficer(Resource):
     def get(self):
         try:
             forest_officers = get_forest_officers()
-            return forest_officers,200
+            data = {
+                "id": forest_officers['_id'].toString(),
+                "username": forest_officers['username'],
+                "first_name": forest_officers['first_name'],
+                "last_name": forest_officers['last_name'],
+                "forest_name": forest_officers['forest_name'],
+                "phone": forest_officers['phone']
+            }
+            return data,200
         except Exception as e:
             return make_response(jsonify({'error': str(e)}), 411)
 
