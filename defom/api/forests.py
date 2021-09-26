@@ -7,11 +7,12 @@ import cv2
 import os, glob
 import pickle
 from bson.objectid import ObjectId
+import numpy as np
 
 
 from defom.api.utils import expect
 from defom.db import (get_tile_view, save_forest, save_forestTile, create_forest_page,
- get_latest_forest_tiles, get_user, get_forest_tiles, getTileAllDetails, getTileView)
+ get_latest_forest_tiles, get_user, get_forest_tiles, getTileAllDetails, get_tile_mask)
 from defom.src.SentinelhubClient import SentilhubClient
 
 
@@ -126,6 +127,17 @@ class ForestTileView(Resource):
     def _get_RGB(self,image):
         rgb = cv2.normalize(image[:,:,[2,1,0]], None, 0, 255, cv2.NORM_MINMAX, dtype=cv2.CV_8U)
         return rgb
+
+    def _get_masked_RGB(self, img, mask):
+        rgb = cv2.normalize(img[:,:,[2,1,0]], None, 0, 255, cv2.NORM_MINMAX, dtype=cv2.CV_8U)/255
+        mask = np.array(mask, dtype='uint8')
+        rz_mask = cv2.resize(mask, rgb.shape[:2], interpolation=cv2.INTER_AREA)[..., np.newaxis]
+
+        transparency = .75
+        tr_mask = rz_mask*transparency
+        red = np.ones(rgb.shape, dtype=np.float)*(1,0,0)
+        out = red*tr_mask + rgb*(1.0-rz_mask)
+        return out
     
     def _get_FM(self,image):
         fm = image[:,:,4]/image[:,:,3]
@@ -162,22 +174,30 @@ class ForestTileView(Resource):
 
         t_id = ObjectId(tile_id)
         ref_id = str(tile_id)
-        if (self.cached_image == {}) or (self.cached_image["ref_id"] != ref_id):
+        if (self.cached_image == {}) or (ref_id not in self.cached_image.keys()):
             ch5_image = get_tile_view(t_id)
-            self.cached_image['ref_id'] = ref_id
-            self.cached_image['image'] = ch5_image
+            self.cached_image[ref_id] = ch5_image
         else:
-            ch5_image = self.cached_image['image']
+            ch5_image = self.cached_image[ref_id]
 
-        mode_map = {'rgb' : self._get_RGB, 'nvdi': self._get_NDVI, 'savi' : self._get_SAVI, 'vari' : self._get_VARI, 'mndwi' : self._get_MNDWI, 'ndwi' : self._get_NDWI, 'fm' : self._get_FM}
-        prep_image = mode_map[mode](ch5_image)
-
-        f_path = f"./defom/images/{ref_id}_{mode}.png"
-        if mode == "rgb":
-            plt.imsave(f_path, prep_image)
+        mode_map = {'rgb' : self._get_RGB, 'nvdi': self._get_NDVI, 'savi' : self._get_SAVI, 'vari' : self._get_VARI, 'mndwi' : self._get_MNDWI, 'ndwi' : self._get_NDWI, 'fm' : self._get_FM, 'masked_rgb' : self._get_masked_RGB}
+        
+        if ch5_image is None:
+            return None
         else:
-            plt.imsave(f_path, prep_image, cmap='RdYlGn', vmin=-1, vmax=1)
-        return send_file(f_path)
+            f_path = f"./defom/images/{ref_id}_{mode}.png"
+            if mode == "rgb":
+                prep_image = mode_map[mode](ch5_image)
+                plt.imsave(f_path, prep_image)
+            elif mode == 'masked_rgb':
+                mask = get_tile_mask(t_id)
+                prep_image = mode_map[mode](ch5_image, mask)
+                plt.imsave(f_path, prep_image)
+            else:
+                prep_image = mode_map[mode](ch5_image)
+                plt.imsave(f_path, prep_image, cmap='RdYlGn', vmin=-1, vmax=1)
+            return send_file(f_path)
+        
         
 
 

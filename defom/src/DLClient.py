@@ -74,7 +74,9 @@ class ClassiModel(object):
     def preprocess_resize(self, images):
 
         def func(x):
-            return cv2.resize(x, (self.image_shape[0], self.image_shape[1]), interpolation = cv2.INTER_NEAREST)
+            rgb = cv2.normalize(x, None, 0, 255, cv2.NORM_MINMAX, dtype=cv2.CV_8U)/255
+            rgb = cv2.resize(rgb, (self.image_shape[0], self.image_shape[1]), interpolation = cv2.INTER_NEAREST)
+            return  rgb
 
         if len(images.shape) == 3:
             images = images[np.newaxis, ...]
@@ -206,7 +208,10 @@ class MaskModel(object):
     def preprocess_resize(self, images):
 
         def func(x):
-            return cv2.resize(x, (self.image_shape[0], self.image_shape[1]), interpolation = cv2.INTER_NEAREST)
+            rgb = cv2.normalize(x, None, 0, 255, cv2.NORM_MINMAX, dtype=cv2.CV_8U)/255
+            rgb = cv2.resize(rgb, (self.image_shape[0], self.image_shape[1]), interpolation = cv2.INTER_NEAREST)
+            
+            return  rgb
 
         if len(images.shape) == 3:
             images = images[np.newaxis, ...]

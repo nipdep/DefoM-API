@@ -114,8 +114,11 @@ def get_latest_forest_tiles(forest_id, date, state=1):
 
 def getTileAllDetails(forest_id, tile_id, date):
     try:
-        tile_data = db.forestTiles.find_one({'forest_id':forest_id, 'tile_id' : tile_id, "save_time" : {"$lte" : date}}, {'image':0, 'mask':0})
-        return tile_data
+        tile_data = list(db.forestTiles.find({'forest_id':forest_id, 'tile_id' : tile_id, "save_time" : {"$lte" : date}}, {'image':0, 'mask':0}).sort("save_time",-1).limit(1))
+        if tile_data != []:
+            return tile_data[0]
+        else:
+            return None
     except Exception as e:
         return e
 
@@ -178,8 +181,22 @@ def getTileView(forest_id, tiles_id):
 def get_tile_view(tile_id):
     try:
         res = db.forestTiles.find_one({"_id":  tile_id}, {'image':1})
-        image = pickle.loads(res['image'])
-        return image
+        if res != None:
+            image = pickle.loads(res['image'])
+            return image
+        else:
+            return None
+    except Exception as e:
+        return e
+
+def get_tile_mask(tile_id):
+    try:
+        res = db.forestTiles.find_one({"_id":  tile_id}, {'mask':1})
+        if res != None:
+            mask = pickle.loads(res['mask'])
+            return mask
+        else:
+            return None
     except Exception as e:
         return e
 
