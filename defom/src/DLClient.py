@@ -177,9 +177,31 @@ class MaskModel(object):
         return model, output_shape, image_shape
 
     @staticmethod
+    def get_v3_model():
+        input_size = (128,128,2)
+        output_shape = (128, 128, 1)
+        latent_size = 32
+
+        input_image = layers.Input(shape=input_size, name='Input')
+        noised_input = layers.GaussianNoise(0.01, name='GausNoise')(input_image)
+        
+        hidden_layer = layers.Conv2D(latent_size, (3,3), strides=(2,2), padding='same', name='HiddenLayer')(noised_input)
+        hidden_activ = layers.Activation('relu', name='HiddenActivation')(hidden_layer)
+
+        output_layer = layers.Conv2DTranspose(1, (3,3), strides=(2,2), padding='same', name='OutputLayer')(hidden_activ)
+        output_activ = layers.Activation('sigmoid', name='OutputActivation')(output_layer)
+
+        model = Model(inputs=input_image, outputs=output_activ, name='defom_seg')
+
+        for layer in model.layers:
+            layer.trainable = False
+
+        return model, output_shape, input_size
+
+    @staticmethod
     def build_model(weight_path, version=1):
         if version == 1:
-            model, output_shape, image_shape = MaskModel.get_v1_model()
+            model, output_shape, image_shape = MaskModel.get_v3_model()
         else:
             raise Exception("Invalid version")
         try:
@@ -190,7 +212,7 @@ class MaskModel(object):
         
     @staticmethod
     def getInstance():
-        model_path = "./defom/bin/defo_mask1.h5"
+        model_path = "./defom/bin/defo_mask3.h5"
         version = 1
         if MaskModel.__instance == None:
             model, output_shape, image_shape = MaskModel.build_model(model_path, version)
