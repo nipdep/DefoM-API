@@ -200,6 +200,13 @@ def get_tile_mask(tile_id):
     except Exception as e:
         return e
 
+def get_forest_areas(forest_id):
+    try:
+        res = db.forests.find_one({"_id": forest_id}, {'boundary':1, 'sub_areas':1})
+        return res
+    except Exception as e:
+        return e
+
 ################### USER realted function ###############################
 
 def add_user(username, email, password):
