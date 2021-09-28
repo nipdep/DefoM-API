@@ -10,9 +10,11 @@ from flask_restful import Resource, Api
 from bson import json_util, ObjectId
 from datetime import datetime, timedelta
 
-from defom.api.users import HandleForestOfficer, User, RegisterUser, LoginUser, logoutUser, Hello, HandleForestAdmin
-from defom.api.forests import RegisterForest, ForestTileView
 
+from defom.api.users import HandleForestOfficer, User, RegisterUser, LoginUser, logoutUser, Hello, HandleForestAdmin, DeleteForestOfficer, UpdateForestOfficer, ForestOfficerSelfUpdate
+# from defom.api.forests import RegisterForest
+# from defom.api.users import User, RegisterUser, LoginUser, logoutUser, Hello
+from defom.api.forests import RegisterForest, ForestTileView
 from defom.api.scheduler import GetTiles, save_tiles_daily, make_class_inf_daily, MakeClassInf, set_latest_threat_daily, set_forest_view, set_mask_daily
 
 
@@ -57,6 +59,9 @@ def create_api():
     api.add_resource(logoutUser, '/user/logout')
     api.add_resource(HandleForestAdmin, '/user/forestAdmin')
     api.add_resource(HandleForestOfficer, '/user/forestOfficer')
+    api.add_resource(DeleteForestOfficer, '/user/deleteForestOfficer')
+    api.add_resource(UpdateForestOfficer, '/user/updateForestOfficer')
+    api.add_resource(ForestOfficerSelfUpdate, '/user/forestOfficer/update')
     api.add_resource(ForestTileView, '/forest/get_tile_view/<forest_id>/<tile_id>/<mode>')
     api.add_resource(GetTiles, '/gettiles')  ## testing resources
     api.add_resource(MakeClassInf, '/classinf') ## testing resources

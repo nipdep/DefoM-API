@@ -246,9 +246,9 @@ def logout_user(email):
     except Exception as e:
         return {"error": e}   
 
-def save_forest_admin(forest_admin_data):
+def save_forest_admin(username, first_name, last_name, forest_name, hashed_password, phone, user_id):
     try:
-        res = db.forestAdmins.insert_one(forest_admin_data)
+        res = db.forestAdmins.insert_one({'username' : username, 'first_name' : first_name, 'last_name' : last_name, 'forest_name' : forest_name, 'password' : hashed_password, 'phone' : phone, 'user_id' : user_id, 'status' : 'New'})
         return res
     except Exception as e:
         return e
@@ -265,15 +265,79 @@ def add_forest_officer(username, email, password):
     except Exception as e:
         return e
 
-def save_forest_officer(forest_officer_data):
+def save_forest_officer(username, first_name, last_name, forest_name, hashed_password, phone, user_id):
     try:
-        res = db.forestOfficers.insert_one(forest_officer_data)
+        res = db.forestOfficers.insert_one({'username' : username, 'first_name' : first_name, 'last_name' : last_name, 'forest_name' : forest_name, 'password' : hashed_password, 'phone' : phone, 'user_id' : user_id, 'status' : 'New'})
         return res
     except Exception as e:
         return e
 
 def get_forest_officers():
     try:
-        return "hello World"
+        res = list(db.forestOfficers.find({}, {'_id':1, 'username': 1, 'first_name': 1, 'last_name': 1, 'forest_name': 1, 'phone': 1, 'status':1}))
+        return res
+    except Exception as e:
+        return e
+
+def delete_forest_officer(email):
+    try:
+        res1 = db.users.delete_one({"email": email})
+        res2 = db.forestOfficers.delete_one({"username": email})
+        return res2
+    except Exception as e:
+        return e
+
+def update_forest_officer_in_users(old_username,username):
+    try:
+        result = db.users.update_one({'email': old_username},
+            {
+                "$set": {
+                    'email': username
+                }
+            }
+        )
+        return result
+    except Exception as e:
+        return e
+
+def update_forest_officer_in_forest_officers(old_username,username, forest_name):
+    try:
+        result = db.forestOfficers.update_one({ 'username' :old_username},
+            {
+                "$set" : {
+                    'username' : username,
+                    'forest_name' : forest_name
+                }
+            }
+        )
+        return result
+    except Exception as e:
+        return e
+
+def self_update_forest_officer_in_users(username, first_name):
+    try:
+        result = db.users.update_one({ 'email' : username},
+            {
+                "$set" : {
+                    'username' : first_name
+                }
+            }
+        )
+        return result
+    except Exception as e:
+        return e
+
+def self_update_forest_officer_in_forest_officers(username,first_name, last_name, phone):
+    try:
+        result = db.forestOfficers.update_one({ 'username' : username},
+            {
+                "$set" : {
+                    'first_name' : first_name,
+                    'last_name' : last_name,
+                    'phone' : phone
+                }
+            }
+        )
+        return result
     except Exception as e:
         return e
