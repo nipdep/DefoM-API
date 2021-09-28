@@ -207,6 +207,13 @@ def get_forest_areas(forest_id):
     except Exception as e:
         return e
 
+def save_forest_areas(forest_id, data):
+    try:
+        res = db.forests.update({"_id": forest_id}, {'$set' : {'sub_areas':data}})
+        return res
+    except Exception as e:
+        return e
+
 ################### USER realted function ###############################
 
 def add_user(username, email, password):
