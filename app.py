@@ -31,7 +31,7 @@ from datetime import datetime, timedelta
 
 
 from defom.api.users import Hello, User, RegisterUser, LoginUser, logoutUser, HandleForestAdmin, HandleForestOfficer, DeleteForestOfficer, UpdateForestOfficer, ForestOfficerSelfUpdate
-from defom.api.forests import RegisterForest, ForestTiles, ForestTileDetails, ForestTileView
+from defom.api.forests import RegisterForest, ForestTiles, ForestTileDetails, ForestTileView, ForestSubAreaHandler
 from defom.api.scheduler import GetTiles, save_tiles_daily, make_class_inf_daily, MakeClassInf, set_latest_threat_daily, set_forest_view, set_mask_daily
 
 import configparser
@@ -90,6 +90,7 @@ api.add_resource(ForestOfficerSelfUpdate, '/user/forestOfficer/update')
 api.add_resource(ForestTiles, '/forest/get_tiles')
 api.add_resource(ForestTileDetails, '/forest/get_tile_details')
 api.add_resource(ForestTileView, '/forest/get_tile_view/<tile_id>/<mode>')
+api.add_resource(ForestSubAreaHandler, '/forest/area/<forest_id>')
 api.add_resource(GetTiles, '/gettiles')  ## testing resources
 api.add_resource(MakeClassInf, '/classinf') ## testing resources
 api.add_resource(Hello, '/hello')
