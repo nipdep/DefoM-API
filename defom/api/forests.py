@@ -131,12 +131,13 @@ class ForestTileView(Resource):
     def _get_masked_RGB(self, img, mask):
         rgb = cv2.normalize(img[:,:,[2,1,0]], None, 0, 255, cv2.NORM_MINMAX, dtype=cv2.CV_8U)/255
         mask = np.array(mask, dtype='uint8')
-        rz_mask = cv2.resize(mask, rgb.shape[:2], interpolation=cv2.INTER_AREA)[..., np.newaxis]
+        rz_mask = cv2.resize(mask, rgb.shape[:2], interpolation=cv2.INTER_AREA)
+        filtered_mask = self.papper_filer(rz_mask)[..., np.newaxis]
 
         transparency = .75
-        tr_mask = rz_mask*transparency
+        tr_mask = filtered_mask*transparency
         red = np.ones(rgb.shape, dtype=np.float)*(1,0,0)
-        out = red*tr_mask + rgb*(1.0-rz_mask)
+        out = red*tr_mask + rgb*(1.0-filtered_mask)
         return out
     
     def _get_FM(self,image):
@@ -163,6 +164,25 @@ class ForestTileView(Resource):
     def _get_NDVI(self,image):
         ndvi = (image[...,3]-image[...,2])/(image[...,3]+image[...,2])
         return ndvi
+
+    def papper_filer(sample):
+        w,h = sample.shape
+        zero_sample = np.zeros((w,h))
+        for i, row in enumerate(sample):
+            for j, elem in enumerate(row):
+                count_list = [0,0]
+                count_list[sample[i,j]]+=1
+                if i+1 < w:
+                    count_list[sample[i+1,j]]+=1
+                if j+1 < h:
+                    count_list[sample[i,j+1]]+=1
+                if j != 0:
+                    count_list[sample[i,j-1]]+=1  
+                if i != 0:
+                    count_list[sample[i-1,j]]+=1
+                val = sorted(count_list)[0]
+                zero_sample[i,j]=val
+        return zero_sample
 
     def folder_cleaner(self):
         filelist = glob.glob(os.path.join(self.dir, "*.png"))
