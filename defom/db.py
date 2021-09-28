@@ -313,3 +313,31 @@ def update_forest_officer_in_forest_officers(old_username,username, forest_name)
         return result
     except Exception as e:
         return e
+
+def self_update_forest_officer_in_users(username, first_name):
+    try:
+        result = db.users.update_one({ 'email' : username},
+            {
+                "$set" : {
+                    'username' : first_name
+                }
+            }
+        )
+        return result
+    except Exception as e:
+        return e
+
+def self_update_forest_officer_in_forest_officers(username,first_name, last_name, phone):
+    try:
+        result = db.forestOfficers.update_one({ 'username' : username},
+            {
+                "$set" : {
+                    'first_name' : first_name,
+                    'last_name' : last_name,
+                    'phone' : phone
+                }
+            }
+        )
+        return result
+    except Exception as e:
+        return e

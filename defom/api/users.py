@@ -2,7 +2,7 @@
 from flask_restful import Resource
 from flask import jsonify, Blueprint, make_response, request, session
 from defom.api.utils import expect
-from defom.db import get_user_by_name, add_user, get_user, login_user, logout_user, save_forest_admin, add_forest_admin, add_forest_officer, save_forest_officer, get_forest_officers, delete_forest_officer, update_forest_officer_in_users, update_forest_officer_in_forest_officers
+from defom.db import get_user_by_name, add_user, get_user, login_user, logout_user, save_forest_admin, add_forest_admin, add_forest_officer, save_forest_officer, get_forest_officers, delete_forest_officer, update_forest_officer_in_users, update_forest_officer_in_forest_officers, self_update_forest_officer_in_users, self_update_forest_officer_in_forest_officers
 from bson.json_util import dumps, loads
 from werkzeug.security import generate_password_hash, check_password_hash
 from jwt import PyJWT
@@ -257,6 +257,23 @@ class UpdateForestOfficer(Resource):
         except Exception as e:
             return make_response(jsonify({'error': str(e)}),411)
 
+class ForestOfficerSelfUpdate(Resource):
+    def post(self):
+        try:
+            post_data = request.get_json()
+            username = expect(post_data['username'], str, "username")
+            first_name = expect(post_data['first_name'], str, "firstName")
+            last_name = expect(post_data['last_name'], str, "last Name")
+            phone = expect(post_data['phone'], str, "phone")
+        except Exception as e:
+            return make_response(jsonify({'error': str(e)}), 400)
+
+        try:
+            result = self_update_forest_officer_in_users(username,first_name)
+            res = self_update_forest_officer_in_forest_officers(username,first_name, last_name, phone)
+            return make_response(jsonify({"status" : str(res.acknowledged)}), 200)
+        except Exception as e:
+            return make_response(jsonify({'error' : str(e)}), 411)
 
        
 class logoutUser(Resource):
