@@ -227,8 +227,16 @@ def login_user(email, jwt):
 
     In `sessions`, each user's email is stored in a field called "user_id".
     """
+
     try:
-        db.sessions.update_one(
+        existing_user = db.session.find_one({'user_id' : email})
+        if not existing_user:
+            db.session.insert_one({'user_id' : email, 'jwt' : jwt})
+    except Exception as e:
+        return {"error" : e}
+
+    try:
+        db.session.update_one(
             { "user_id": email },
             { "$set": { "jwt": jwt } }
         )
@@ -241,7 +249,7 @@ def logout_user(email):
     In `sessions`, each user's email is stored in a field called "user_id".
     """
     try:
-        db.sessions.delete_one({ "user_id": email })
+        db.session.delete_one({ "user_id": email })
         return {"success": True}
     except Exception as e:
         return {"error": e}   

@@ -122,7 +122,7 @@ class LoginUser(Resource):
         jwt = create_access_token(user.to_json())
 
         try:
-            login_user(user.email, jwt)
+            login_user(email, jwt)
             response_object = {
                 'auth_token': jwt,
                 'info': userdata,
@@ -279,10 +279,15 @@ class ForestOfficerSelfUpdate(Resource):
 class logoutUser(Resource):
     @jwt_required
     def post(self):
-        claims = get_jwt_claims()
-        user = User.from_claims(claims)
         try:
-            logout_user(user.email)
+            post_data = request.get_json()
+            email = expect(post_data['email'],str, 'email')
+        except Exception as e:
+            return make_response(jsonify({'error' : str(e)}), 400)
+        # claims = get_jwt_claims()
+        # user = User.from_claims(claims)
+        try:
+            logout_user(email)
             response_object = {
                 'status': 'logged out'
             }
