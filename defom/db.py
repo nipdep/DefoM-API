@@ -211,7 +211,7 @@ def get_forest_areas(forest_id):
 
 def save_forest_areas(forest_id, data):
     try:
-        res = db.forests.update({"_id": forest_id}, {'$set' : {'sub_areas':data}})
+        res = db.forests.update({"_id": forest_id}, {'$push' : {'sub_areas': data}})
         return res
     except Exception as e:
         return e
