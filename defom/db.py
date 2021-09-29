@@ -276,9 +276,9 @@ def logout_user(email):
     except Exception as e:
         return {"error": e}   
 
-def save_forest_admin(username, first_name, last_name, forest_name, hashed_password, phone, user_id):
+def save_forest_admin(username, first_name, last_name, forest_id,hashed_password, phone, user_id):
     try:
-        res = db.forestAdmins.insert_one({'username' : username, 'first_name' : first_name, 'last_name' : last_name, 'forest_name' : forest_name, 'password' : hashed_password, 'phone' : phone, 'user_id' : user_id, 'status' : 'New'})
+        res = db.forestAdmins.insert_one({'username' : username, 'first_name' : first_name, 'last_name' : last_name, 'forest_id' : forest_id ,'password' : hashed_password, 'phone' : phone, 'user_id' : user_id, 'status' : 'New'})
         return res
     except Exception as e:
         return e
@@ -295,9 +295,9 @@ def add_forest_officer(username, email, password):
     except Exception as e:
         return e
 
-def save_forest_officer(username, first_name, last_name, forest_name, hashed_password, phone, user_id):
+def save_forest_officer(username, first_name, last_name, forest_id, hashed_password, phone, user_id):
     try:
-        res = db.forestOfficers.insert_one({'username' : username, 'first_name' : first_name, 'last_name' : last_name, 'forest_name' : forest_name, 'password' : hashed_password, 'phone' : phone, 'user_id' : user_id, 'status' : 'New'})
+        res = db.forestOfficers.insert_one({'username' : username, 'first_name' : first_name, 'last_name' : last_name, 'forest_id' : forest_id, 'password' : hashed_password, 'phone' : phone, 'user_id' : user_id, 'status' : 'New'})
         return res
     except Exception as e:
         return e
@@ -372,6 +372,7 @@ def self_update_forest_officer_in_forest_officers(username,first_name, last_name
     except Exception as e:
         return e
 
+
 ######################### MESSAGE related ##################################################
 
 def get_thread_data(thread_id):
@@ -403,3 +404,18 @@ def add_comment(thread_id, sms_id, comment_data):
         return db.forumThreads.update({'_id':thread_id, 'message.id':sms_id}, { '$push' : {'messages.comments' : comment_data}})
     except Exception as e:
         return e
+
+def forest_names_and_ids():
+    try:
+        result = list(db.forests.find({}, {'_id':1, "forest_name" : 1}))
+        return result
+    except Exception as e:
+        return e
+
+def get_forest_id(username):
+    try:
+        result = db.forestAdmins.find_one({ 'username' : username}, {'_id':0, 'forest_id':1})
+        return result
+    except Exception as e:
+        return e
+

@@ -13,7 +13,9 @@ import numpy as np
 from defom.api.utils import expect
 from defom.db import (get_tile_view, save_forest, save_forestTile, create_forest_page,
  get_latest_forest_tiles, get_user, get_forest_tiles, getTileAllDetails, get_tile_mask,
- get_forest_areas, save_forest_areas, get_forest_officer)
+ get_forest_areas, forest_names_and_ids, get_forest_id,get_forest_officer, save_forest_areas)
+ 
+
 from defom.src.SentinelhubClient import SentilhubClient
 
 
@@ -281,4 +283,23 @@ class ForestSubAreaHandler(Resource):
 
     def delete(self):
         ...
+class ForestNameHandler(Resource):
+    def get(self):
+        try:
+            forest_name_id = forest_names_and_ids();
+            for doc in forest_name_id:
+                doc['_id'] = str(doc['_id'])
+            return forest_name_id,200
+        except Exception as e:
+            return make_response(jsonify({ 'error': str(e)}),400)
 
+class ForestIdHandler(Resource):
+    def post(self):
+        try:
+            post_data = request.get_json()
+            username = expect(post_data['username'], str, "username")
+            result = get_forest_id(username)
+            result['forest_id'] = str(result['forest_id'])
+            return result,200
+        except Exception as e:
+            return make_response(jsonify({'error': str(e)}),400)
