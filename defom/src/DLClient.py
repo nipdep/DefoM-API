@@ -43,9 +43,29 @@ class ClassiModel(object):
         return model, (height, width, channels), n_labels, class_dict
 
     @staticmethod
+    def get_v3_model():
+        height, width, channels = 128, 128, 3
+        n_labels = 8 # the number of classes
+        class_dict = {0 : "agriculture", 1 : "clear", 2 : "cloudy", 3 : "cultivation", 4 : "habitation", 5 : "primary", 6 : "road", 7 : "water"}
+        feat_model = tf.keras.applications.MobileNetV3Small(weights='imagenet', include_top=False, input_shape=(height, width, channels))
+        
+
+        x = feat_model.output
+        x = layers.GlobalAveragePooling2D()(x)
+        x = layers.Dropout(0.2)(x)
+        x = layers.Dense(n_labels, activation='sigmoid', name='output')(x)
+        model = Model(inputs=feat_model.input, outputs=x, name='multi_class_multi_label_classifier')
+
+        for layer in model.layers:
+            layer.trainable = False
+            
+        return model, (height, width, channels), n_labels, class_dict
+
+
+    @staticmethod
     def build_model(weight_path, version=2):
         if version == 2:
-            model, image_shape, n_labels, class_dict = ClassiModel.get_v2_model()
+            model, image_shape, n_labels, class_dict = ClassiModel.get_v3_model()
         else:
             raise Exception("Invalid version")
         try:
@@ -56,7 +76,7 @@ class ClassiModel(object):
         
     @staticmethod
     def getInstance():
-        model_path = "./defom/bin/defo_ks2.h5"
+        model_path = "./defom/bin/defo_ks3.h5"
         version = 2
         if ClassiModel.__instance == None:
             model, image_shape, n_labels, class_dict = ClassiModel.build_model(model_path, version)
