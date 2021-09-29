@@ -107,7 +107,6 @@ def get_latest_forest_tiles(forest_id, date, state=1):
             pred_dict = {}
             for pred in latest_pred_in_id:
                 pred_dict[pred['tile_id']] = {'id' : pred['_id'], 'res' : pred['class_infered']}
-            pred_dict
             return pred_dict
     except Exception as e:
         return e
@@ -161,9 +160,12 @@ def get_tile_view_id(forest_id, tile_ids, date):
     except Exception as e:
         return e
 
-def get_forest_tiles(forest_id):
+def get_forest_tiles(forest_id, date_dt):
     try:
         acc_tiles = db.forests.find_one({'_id':forest_id}, {'forest_name':1, 'forest_tiles':1, 'location':1})
+        inf_list = list(db.forestTiles.find({'forest_id' : forest_id,'save_time': date_dt}, {'infered_threat_present':1, '_id':0}))
+        for i, doc in enumerate(acc_tiles['forest_tiles']):
+            doc['infered_threat_present'] = True if inf_list[i] != {} else False
         return acc_tiles
     except Exception as e:
         return e
@@ -231,6 +233,12 @@ def add_user_name():
 def get_user(email):
     try:
         return db.users.find_one({'email' : email})   
+    except Exception as e:
+        return e
+
+def get_forest_officer(email):
+    try:
+        return db.forestOfficers.find_one({'username' : email})   
     except Exception as e:
         return e
 
@@ -361,5 +369,37 @@ def self_update_forest_officer_in_forest_officers(username,first_name, last_name
             }
         )
         return result
+    except Exception as e:
+        return e
+
+######################### MESSAGE related ##################################################
+
+def get_thread_data(thread_id):
+    try:
+        return db.forumThreads.find_one({'_id':thread_id}, {'messages':0})
+    except Exception as e:
+        return e
+
+def create_thread(thread_data):
+    try:
+        return db.forumThreads.insert_one(thread_data)
+    except Exception as e:
+        return e   
+
+def get_message_data(sms_id):
+    try:
+        return db.forumThreads.find_one({'messages._id':sms_id}, {'messages':1})
+    except Exception as e:
+        return e
+
+def add_message(thread_id,sms_data):
+    try:
+        return db.forumThreads.update({'_id':thread_id}, { '$push' : {'messages' : sms_data}})
+    except Exception as e:
+        return e
+
+def add_comment(thread_id, sms_id, comment_data):
+    try:
+        return db.forumThreads.update({'_id':thread_id, 'message.id':sms_id}, { '$push' : {'messages.comments' : comment_data}})
     except Exception as e:
         return e
