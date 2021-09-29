@@ -13,7 +13,7 @@ import numpy as np
 from defom.api.utils import expect
 from defom.db import (get_tile_view, save_forest, save_forestTile, create_forest_page,
  get_latest_forest_tiles, get_user, get_forest_tiles, getTileAllDetails, get_tile_mask,
- get_forest_areas, save_forest_areas)
+ get_forest_areas, save_forest_areas, get_forest_officer)
 from defom.src.SentinelhubClient import SentilhubClient
 
 
@@ -224,7 +224,7 @@ class ForestTileView(Resource):
 
 
 class ForestTiles(Resource):
-    @jwt_required
+    # @jwt_required
     def post(self):
         try:
             post_data = request.get_json()
@@ -240,13 +240,13 @@ class ForestTiles(Resource):
             return make_response(jsonify({'error': str(e)}), 400)
 
         try:
-            doc = get_user(email)
+            doc = get_forest_officer(email)
             forest_id = doc['forest_id']
         except Exception as e:
             return make_response(jsonify({'error': str(e)}), 400)   
 
         try:
-            res = get_forest_tiles(forest_id)
+            res = get_forest_tiles(ObjectId(forest_id), dt_date)
             ft = res['forest_tiles']
             for tile in ft:
                 up, down = tile['bbox']

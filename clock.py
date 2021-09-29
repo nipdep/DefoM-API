@@ -65,7 +65,7 @@ def input_creator(image1, image2):
     return inf_img
 
 ## daily satellite feed extraction
-@sched.scheduled_job('cron', hour=9, minute=56, name="get_forest_tiles")
+@sched.scheduled_job('cron', hour=18, minute=29, name="get_forest_tiles")
 def save_tiles_daily():
     dict_list = get_all_forest_tiles()
     sentinel_client = SentilhubClient()    ## Init sentinelHUb invoker
@@ -73,7 +73,7 @@ def save_tiles_daily():
     mask_model = MaskModel.getInstance()    ## Init mask classification model
 
     ## define date details 
-    today = date.today()
+    today = date.today() - timedelta(days=2)
     end_date = today - timedelta(days=1)
     start_date = today - timedelta(days=2)
 
@@ -90,6 +90,9 @@ def save_tiles_daily():
             forest_tile_list = doc['tile_list']
             forest_status = doc['status']
             image_list = []
+
+            if str(forest_id) == "61516758aea57b6f9e9919c6":
+                continue
 
             ## create ForestTile raw document for all the tiles in forest
             for tile in forest_tile_list:
