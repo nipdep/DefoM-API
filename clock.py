@@ -1,4 +1,4 @@
-
+#%%
 from apscheduler.schedulers.background import BackgroundScheduler, BlockingScheduler
 from apscheduler.events import EVENT_JOB_EXECUTED, EVENT_JOB_ERROR
 
@@ -51,7 +51,7 @@ def set_forest_view(acceptable_forests, start_date, end_date):
                 forest_view = sentinel_client.get_forest(forest_boundary, start_date, end_date)
                 preprocessed_view = np.clip(forest_view* 3.5/255, 0,1)
                 bin_image = pickle.dumps(preprocessed_view)
-                update_requests.append(UpdateOne({'_id' : forest_id}, {'$set' : {'entire_forest_view' : bin_image, 'forest_view_updated_date' : today}}))
+                update_requests.append(UpdateOne({'forest_id' : ObjectId(forest_id)}, {'$set' : {'entire_forest_view' : bin_image, 'forest_view_updated_date' : today}}))
 
         forestPage_bulkWrite(update_requests)
     except Exception as e:
@@ -65,7 +65,7 @@ def input_creator(image1, image2):
     return inf_img
 
 ## daily satellite feed extraction
-@sched.scheduled_job('cron', hour=18, minute=29, name="get_forest_tiles")
+@sched.scheduled_job('cron', hour=20, minute=53, name="get_forest_tiles")
 def save_tiles_daily():
     dict_list = get_all_forest_tiles()
     sentinel_client = SentilhubClient()    ## Init sentinelHUb invoker
@@ -73,26 +73,27 @@ def save_tiles_daily():
     mask_model = MaskModel.getInstance()    ## Init mask classification model
 
     ## define date details 
-    today = date.today() - timedelta(days=2)
+    today = date.today() - timedelta(days=5)
     end_date = today - timedelta(days=1)
     start_date = today - timedelta(days=2)
 
     today_dt = datetime.combine(today, datetime.min.time())
     end_date_dt = datetime.combine(end_date, datetime.min.time())
+    end_dt = datetime.combine(date.today() - timedelta(days=5), datetime.min.time()) ####
+
+    logger.info(f"[DATE] : {today_dt}")
 
     all_documents = []     ## list of all the forestTiles documents 
     updatable_forests = []  ## forest list with threat detected
-    for doc in dict_list:  ## run over all the forests in the db
+    update_requests_1 = []
+    for fdoc in dict_list:  ## run over all the forests in the db
         documents = []
         try:
             ## extract single forest details
-            forest_id = doc['forest_id']
-            forest_tile_list = doc['tile_list']
-            forest_status = doc['status']
+            forest_id = fdoc['forest_id']
+            forest_tile_list = fdoc['tile_list']
+            forest_status = fdoc['status']
             image_list = []
-
-            if str(forest_id) == "61516758aea57b6f9e9919c6":
-                continue
 
             ## create ForestTile raw document for all the tiles in forest
             for tile in forest_tile_list:
@@ -103,7 +104,7 @@ def save_tiles_daily():
                     ## get forest tile satellite image of yesterday.
                     s_image = sentinel_client.get_tile(coords, 10, start_date, end_date)[0]
                     sat_image = s_image[:,:,:5]
-                    image_list.append(sat_image[:,:,:3])
+                    image_list.append(sat_image[...,:3])
                     ## binarize forest image to send in json request
                     binary_image = pickle.dumps(sat_image)
                 except Exception as e:
@@ -124,7 +125,8 @@ def save_tiles_daily():
 
             try:
                 ## get classification inference result on forest tiles
-                inferences  = class_inf(image_list)
+                np_images = np.array(image_list)
+                inferences  = class_inf(np_images)
                 for i, doc in enumerate(documents):
                     ## add infer. to forestTile documents 
                     doc['class_infered'] = inferences[i]
@@ -137,13 +139,13 @@ def save_tiles_daily():
             
             try:
                 ## Init bulk-request list and data passing dictionary
-                update_requests_1 = []
+                
                 masking_tiles = {'tile_id' : [], 'tile_image' : []}
                 view_collectable = False
 
                 if forest_status != "new":
                     ## get last forest tile view in the system
-                    forest_tile_today_pred = get_latest_forest_tiles(forest_id, end_date_dt, 2)
+                    forest_tile_today_pred = get_latest_forest_tiles(forest_id, end_date_dt, 2) ####
                     for doc in documents:
                         ## find new threat type in the today forest tile
                         cur_threat = set(doc['class_infered'])
@@ -159,17 +161,17 @@ def save_tiles_daily():
                             masking_tiles['tile_id'].append(doc['tile_id'])
                             masking_tiles['tile_image'].append(doc['raw_image'])
                             ## create update query to forest on new tile 
-                            query = UpdateOne({'_id': doc['forest_id'], 'forest_tiles.tile_id':doc['tile_id']}, {'$set' : {'forest_tiles.$.infered_threat_present' : True, 'forest_tiles.$.inference_updated_date' : today_dt, 'forest_tiles.$.update_view_id': doc['_id']}})
+                            query = UpdateOne({'_id': forest_id, 'forest_tiles.tile_id':doc['tile_id']}, {'$set' : {'forest_tiles.$.infered_threat_present' : True, 'forest_tiles.$.inference_updated_date' : today_dt, 'forest_tiles.$.update_view_id': doc['_id']}})
                             update_requests_1.append(query) 
                         else:
-                            query = UpdateOne({'_id': doc['forest_id'], 'forest_tiles.tile_id':doc['tile_id']}, {'$set' : {'forest_tiles.$.infered_threat_present' : False}})
+                            query = UpdateOne({'_id': forest_id, 'forest_tiles.tile_id':doc['tile_id']}, {'$set' : {'forest_tiles.$.infered_threat_present' : False}})
                             update_requests_1.append(query) 
                 else:
                     ## if forest is new then update all the forest tile reference and set into entire view updatable list
                     view_collectable = True
-                    update_requests_1.append(UpdateOne({'_id': doc['forest_id']}, {'$set' : {'status' : "active"}}))
+                    update_requests_1.append(UpdateOne({'_id': forest_id}, {'$set' : {'status' : "active"}}))
                     for doc in documents:
-                        query = UpdateOne({'_id': doc['forest_id'], 'forest_tiles.tile_id':doc['tile_id']}, {'$set' : {'forest_tiles.$.infered_threat_present' : True, 'forest_tiles.$.inference_updated_date' : today_dt, 'forest_tiles.$.update_view_id': doc['_id']}})
+                        query = UpdateOne({'_id': forest_id, 'forest_tiles.tile_id':doc['tile_id']}, {'$set' : {'forest_tiles.$.infered_threat_present' : True, 'forest_tiles.$.inference_updated_date' : today_dt, 'forest_tiles.$.update_view_id': doc['_id']}})
                         update_requests_1.append(query)  
 
                 if view_collectable:
@@ -185,7 +187,7 @@ def save_tiles_daily():
                     ## take updatable forest tiles from data-passing dict.
                     accessing_tiles = masking_tiles['tile_id']
                     ## take yesterday forest view
-                    acc_ys_tiles = get_tile_view_id(forest_id, accessing_tiles, end_date_dt)
+                    acc_ys_tiles = get_tile_view_id(forest_id, accessing_tiles, end_date_dt)  ####
                     # logger.info(f"masking_tiles {masking_tiles}")
                     image_td_dict = {}
                     for i, iid in enumerate(masking_tiles['tile_id']):
@@ -247,7 +249,7 @@ def save_tiles_daily():
        
     try:
         ## insert all the today forestTile doc. to db
-        result = save_forestTile(documents)
+        result = save_forestTile(all_documents)
         logger.info(f"[WRITE FOREST TILES] | forest_id : {forest_id}")
         ## update forests on todays results
         forests_bulkWrite(update_requests_1)
@@ -257,6 +259,9 @@ def save_tiles_daily():
         logger.info(f"[SET FOREST VIEW] | forest_id : {forest_id}")
     except Exception as e:
         return print(e)
+
+# save_tiles_daily()
+
 
 def my_listener(event):
     if event.exception:
