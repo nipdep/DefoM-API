@@ -272,6 +272,7 @@ class ForestSubAreaHandler(Resource):
     def post(self):
         try:
             post_data = request.get_json()
+            print(post_data)
             forest_data = expect(post_data['sub_area'], str, 'forest')
             save_forest_areas(forest_data)
         except Exception as e:

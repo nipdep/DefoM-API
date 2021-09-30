@@ -96,13 +96,13 @@ api.add_resource(ForestTileView, '/forest/get_tile_view/<tile_id>/<mode>')
 api.add_resource(ForestSubAreaHandler, '/forest/area/<forest_id>')
 api.add_resource(ForestNameHandler, '/forest/forestNames')
 
-api.add_resource(ThreadHandler, '/thread/', method='POST')
-api.add_resource(ThreadHandler, '/thread/<thread_id>', method='GET')
+# api.add_resource(ThreadHandler, '/thread/', method='POST')
+# api.add_resource(ThreadHandler, '/thread/<thread_id>', method='GET')
 
-api.add_resource(MessageHandler, '/thread/message', method='POST')
-api.add_resource(MessageHandler, '/thread/message/sms_id', method='GET')
+# api.add_resource(MessageHandler, '/thread/message', method='POST')
+# api.add_resource(MessageHandler, '/thread/message/sms_id', method='GET')
 
-api.add_resource(CommentHandler, '/comment', method="POST")
+# api.add_resource(CommentHandler, '/comment', method="POST")
 
 api.add_resource(GetTiles, '/gettiles')  ## testing resources
 api.add_resource(MakeClassInf, '/classinf') ## testing resources
