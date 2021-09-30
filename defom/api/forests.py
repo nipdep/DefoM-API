@@ -269,12 +269,15 @@ class ForestSubAreaHandler(Resource):
         except Exception as e:
             return make_response(jsonify({'error': str(e)}), 400)
 
-    def post(self):
+    def post(self, forest_id):
         try:
             post_data = request.get_json()
-            print(post_data)
-            forest_data = expect(post_data['sub_area'], str, 'forest')
-            save_forest_areas(forest_data)
+            fr_id = ObjectId(post_data['forest_id'])
+            forest_data = {}
+            forest_data['_id'] = ObjectId()
+            forest_data['restriction_level'] = expect(post_data['restriction_level'], str, 'forest')
+            forest_data['sub_area'] = expect(post_data['sub_area'], list, 'forest')
+            save_forest_areas(fr_id, forest_data)
         except Exception as e:
             return make_response(jsonify({'error': str(e)}), 400)
         

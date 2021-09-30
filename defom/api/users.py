@@ -3,7 +3,7 @@ from bson.objectid import ObjectId
 from flask_restful import Resource
 from flask import jsonify, Blueprint, make_response, request, session
 from defom.api.utils import expect
-from defom.db import get_user_by_name, add_user, get_user, login_user, logout_user, save_forest_admin, add_forest_admin, add_forest_officer, save_forest_officer, get_forest_officers, delete_forest_officer, update_forest_officer_in_users, update_forest_officer_in_forest_officers, self_update_forest_officer_in_users, self_update_forest_officer_in_forest_officers
+from defom.db import get_user_by_name, add_user, get_user, login_user, logout_user, save_forest_admin, add_forest_admin, add_forest_officer, save_forest_officer, get_forest_officers, delete_forest_officer, update_forest_officer_in_users, update_forest_officer_in_forest_officers, self_update_forest_officer_in_users, self_update_forest_officer_in_forest_officers,add_citizen
 from bson.json_util import dumps, loads
 from werkzeug.security import generate_password_hash, check_password_hash
 from jwt import PyJWT
@@ -90,6 +90,8 @@ class RegisterUser(Resource):
             return make_response(jsonify(response_object), 411)
         try:
             result = add_user(name, email, bcrypt.generate_password_hash(
+                password=password.encode('utf8')).decode("utf-8"))
+            response = add_citizen(name, email, bcrypt.generate_password_hash(
                 password=password.encode('utf8')).decode("utf-8"))
         except Exception as e:
                 return make_response(make_response(jsonify(e), 411))
@@ -239,7 +241,7 @@ class UpdateForestOfficer(Resource):
             post_data = request.get_json()
             old_username = expect(post_data['oldUsername'], str, "old username")
             username = expect(post_data['username'], str, "username")
-            forest_name = expect(post_data['forest_name'], str, "forest name")
+            forest_id = expect(post_data['forest_id'], str, "forest id")
         except Exception as e:
             return make_response(jsonify({'error': str(e)}), 400)
 
@@ -252,7 +254,7 @@ class UpdateForestOfficer(Resource):
             result = update_forest_officer_in_users(old_username,username)
             # print(result)
             # new_fid = result.inserted_id
-            res = update_forest_officer_in_forest_officers(old_username,username, forest_name)
+            res = update_forest_officer_in_forest_officers(old_username,username, forest_id)
             print(res)
             return make_response(jsonify({"status" : str(res.acknowledged)}), 200)
         except Exception as e:

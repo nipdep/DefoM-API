@@ -220,7 +220,7 @@ def save_forest_areas(forest_id, data):
 
 def add_user(username, email, password):
     try:
-        return db.users.insert_one({'username' : username, 'password' : password, 'email' : email, 'user_type' : 'forestAdmin'})
+        return db.users.insert_one({'username' : username, 'password' : password, 'email' : email, 'user_type' : 'citizen'})
     except Exception as e:
         return e
 
@@ -330,13 +330,13 @@ def update_forest_officer_in_users(old_username,username):
     except Exception as e:
         return e
 
-def update_forest_officer_in_forest_officers(old_username,username, forest_name):
+def update_forest_officer_in_forest_officers(old_username,username, forest_id):
     try:
         result = db.forestOfficers.update_one({ 'username' :old_username},
             {
                 "$set" : {
                     'username' : username,
-                    'forest_name' : forest_name
+                    'forest_id' : forest_id
                 }
             }
         )
@@ -368,6 +368,13 @@ def self_update_forest_officer_in_forest_officers(username,first_name, last_name
                 }
             }
         )
+        return result
+    except Exception as e:
+        return e
+
+def add_citizen(name, username, password):
+    try:
+        result = db.citizens.insert_one({'name' : name, 'username' : username, 'password' : password})
         return result
     except Exception as e:
         return e
