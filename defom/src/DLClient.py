@@ -107,11 +107,12 @@ class ClassiModel(object):
         resized_images = np.array(pre_list)
         return resized_images
 
-    def inference(self, images):
-        threshold = 0.98
-        images = self.preprocess_resize(images)
+    def inference(self, imgs):
+        threshold = 0.96
+        images = self.preprocess_resize(imgs)
         # images = images/255
-        results = (self.model.predict(images)>threshold).astype('int')
+        preds = self.model.predict(images)
+        results = (preds>threshold).astype('int')
         
         class_result = []
         for i in range(results.shape[0]):
@@ -119,7 +120,6 @@ class ClassiModel(object):
             idx = list(np.where(result == 1)[0])
             classes = [self.label_dict[j] for j in idx]
             class_result.append(classes)
-
 
         return class_result
 
