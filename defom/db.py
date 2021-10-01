@@ -216,6 +216,28 @@ def save_forest_areas(forest_id, data):
     except Exception as e:
         return e
 
+def get_forest_page_det(forest_id):
+    try:
+        res = db.forestPage.find_one({"forest_id":forest_id}, {"entire_forest_view":0})
+        return res
+    except Exception as e:
+        return e
+
+def get_forest_entire_view(forest_id):
+    try:
+        bin_image = db.forestPage.find_one({"forest_id":forest_id}, {"entire_forest_view":1})
+        image = pickle.loads(bin_image['entire_forest_view'])
+        return image
+    except Exception as e:
+        return e
+
+def get_all_forest_det():
+    try:
+        forests = list(db.forests.find({}, {"boundary":0, "forest_tiles":0, "status":0, "sub_areas":0}))
+        return forests
+    except Exception as e:
+        return e
+
 ################### USER realted function ###############################
 
 def add_user(username, email, password):
