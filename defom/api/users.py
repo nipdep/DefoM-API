@@ -241,7 +241,7 @@ class UpdateForestOfficer(Resource):
             post_data = request.get_json()
             old_username = expect(post_data['oldUsername'], str, "old username")
             username = expect(post_data['username'], str, "username")
-            forest_id = expect(post_data['forest_id'], str, "forest id")
+            forest_id = ObjectId(expect(post_data['forest_id'], str, "forest id"))
         except Exception as e:
             return make_response(jsonify({'error': str(e)}), 400)
 
@@ -255,7 +255,6 @@ class UpdateForestOfficer(Resource):
             # print(result)
             # new_fid = result.inserted_id
             res = update_forest_officer_in_forest_officers(old_username,username, forest_id)
-            print(res)
             return make_response(jsonify({"status" : str(res.acknowledged)}), 200)
         except Exception as e:
             return make_response(jsonify({'error': str(e)}),411)

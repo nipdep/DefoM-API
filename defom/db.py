@@ -304,7 +304,7 @@ def save_forest_officer(username, first_name, last_name, forest_id, hashed_passw
 
 def get_forest_officers():
     try:
-        res = list(db.forestOfficers.find({}, {'_id':1, 'username': 1, 'first_name': 1, 'last_name': 1, 'forest_name': 1, 'phone': 1, 'status':1}))
+        res = list(db.forestOfficers.find({}, {'_id':1, 'username': 1, 'first_name': 1, 'last_name': 1, 'phone': 1, 'status':1}))
         return res
     except Exception as e:
         return e

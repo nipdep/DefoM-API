@@ -12,15 +12,7 @@ import numpy as np
 from defom.api.utils import expect
 from defom.db import get_thread_data, create_thread, get_message_data, add_message, add_comment
 
-class ThreadHandler(Resource):
-    def get(self, thread_id):
-        try:
-            thr_id = ObjectId(thread_id)
-            res = get_thread_data(thr_id)
-            return jsonify(res)
-        except Exception as e:
-            return jsonify({'error': str(e)})
-    
+class ThreadCreator(Resource):
     def post(self):
         try:
             thread_data = request.get_json()
@@ -28,6 +20,15 @@ class ThreadHandler(Resource):
             return jsonify(res)
         except Exception as e:
             return jsonify({'error': str(e)})
+
+class ThreadHandler(Resource):
+    def get(self, thread_id):
+        try:
+            thr_id = ObjectId(thread_id)
+            res = get_thread_data(thr_id)
+            return jsonify(res)
+        except Exception as e:
+            return jsonify({'error': str(e)}) 
         
     def update(self):
         ...   
@@ -35,17 +36,7 @@ class ThreadHandler(Resource):
     def delete(self):
         ...
 
-
-class MessageHandler(Resource):
-    def get(self, sms_id):
-        try:
-            sms_id = ObjectId(sms_id)
-            res = get_message_data(sms_id)
-            return jsonify(res)
-        except Exception as e:
-            return jsonify({'error': str(e)})
-         
-    
+class MessageCreator(Resource):
     def post(self):
         try:
             message_data = request.get_json()
@@ -57,16 +48,22 @@ class MessageHandler(Resource):
         except Exception as e:
             return jsonify({'error': str(e)})
 
+class MessageHandler(Resource):
+    def get(self, sms_id):
+        try:
+            sms_id = ObjectId(sms_id)
+            res = get_message_data(sms_id)
+            return jsonify(res)
+        except Exception as e:
+            return jsonify({'error': str(e)})
+
     def update(self):
         ...   
     
     def delete(self):
         ...
 
-class CommentHandler(Resource):
-    def get(self):
-        ... 
-    
+class CommentCreator(Resource):
     def post(self):
         try:
             comment_data = request.get_json()
@@ -79,6 +76,9 @@ class CommentHandler(Resource):
             return jsonify(res)
         except Exception as e:
             return jsonify({'error': str(e)})
+class CommentHandler(Resource):
+    def get(self):
+        ...  
 
     def update(self):
         ...   
