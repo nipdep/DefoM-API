@@ -37,8 +37,9 @@ def class_inf(image_list):
     except Exception as e:
         return e
 
-def set_forest_view(acceptable_forests, start_date, end_date):
-    today = datetime.combine(date.today(), datetime.min.time())
+def set_forest_view(acceptable_forests, end_date):
+    today = datetime.combine(end_date, datetime.min.time())
+    start_date = datetime.combine(end_date - timedelta(days=2), datetime.min.time())
     sentinel_client = SentilhubClient()
     try:
         forests = get_forests_pred_bnd()
@@ -48,8 +49,8 @@ def set_forest_view(acceptable_forests, start_date, end_date):
             forest_boundary = forest['boundary']
             updatable = forest_id in acceptable_forests
             if updatable:
-                forest_view = sentinel_client.get_forest(forest_boundary, start_date, end_date)
-                preprocessed_view = np.clip(forest_view* 3.5/255, 0,1)
+                forest_view = sentinel_client.get_forest(forest_boundary, start_date, today)
+                preprocessed_view = np.clip(forest_view*3.5/255, 0,1)
                 bin_image = pickle.dumps(preprocessed_view)
                 update_requests.append(UpdateOne({'forest_id' : ObjectId(forest_id)}, {'$set' : {'entire_forest_view' : bin_image, 'forest_view_updated_date' : today}}))
 
@@ -259,7 +260,7 @@ def save_tiles_daily():
         forests_bulkWrite(update_requests_1)
         logger.info(f"[UPDATE FOREST DETAIL] | forest_id : {forest_id}")
         ## set new forest view in forestPage Collection
-        set_forest_view(updatable_forests, end_date_dt, today_dt)
+        set_forest_view(updatable_forests, today)
         logger.info(f"[SET FOREST VIEW] | forest_id : {forest_id}")
     except Exception as e:
         return print(e)

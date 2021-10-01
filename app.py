@@ -102,12 +102,9 @@ api.add_resource(ForestImage, '/forestpage/i/<forest_id>')
 
 api.add_resource(ThreadCreator, '/thread/', methods=['POST'])
 api.add_resource(ThreadHandler, '/thread/<thread_id>', methods=['GET'])
-
 api.add_resource(MessageCreator, '/thread/message', methods=['POST'])
 api.add_resource(MessageHandler, '/thread/message/sms_id', methods=['GET'])
-
 api.add_resource(CommentCreator, '/comment', methods=["POST"])
-
 api.add_resource(GetTiles, '/gettiles')  ## testing resources
 api.add_resource(MakeClassInf, '/classinf') ## testing resources
 api.add_resource(Hello, '/hello')
