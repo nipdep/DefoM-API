@@ -54,7 +54,7 @@ class SentilhubClient(object):
                         bands: ["B02", "B03", "B04"]
                     }],
                     output: {
-                        bands: 5
+                        bands: 3
                     }
                 };
             }
