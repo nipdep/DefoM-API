@@ -17,7 +17,6 @@
 # app.run()
 
 import os
-
 from flask import Flask, render_template
 from flask.json import JSONEncoder
 from flask_bcrypt import Bcrypt
@@ -99,12 +98,12 @@ api.add_resource(ForestPageSummary, '/forestpage')
 api.add_resource(ForestPageDetail, '/forestpage/d/<forest_id>')
 api.add_resource(ForestImage, '/forestpage/i/<forest_id>')
 
-
 api.add_resource(ThreadCreator, '/thread/', methods=['POST'])
 api.add_resource(ThreadHandler, '/thread/<thread_id>', methods=['GET'])
 api.add_resource(MessageCreator, '/thread/message', methods=['POST'])
 api.add_resource(MessageHandler, '/thread/message/sms_id', methods=['GET'])
 api.add_resource(CommentCreator, '/comment', methods=["POST"])
+
 api.add_resource(GetTiles, '/gettiles')  ## testing resources
 api.add_resource(MakeClassInf, '/classinf') ## testing resources
 api.add_resource(Hello, '/hello')

@@ -270,7 +270,7 @@ class ForestSubAreaHandler(Resource):
         except Exception as e:
             return make_response(jsonify({'error': str(e)}), 400)
 
-    def post(self):
+    def post(self, forest_id):
         try:
             post_data = request.get_json()
             fr_id = ObjectId(post_data['forest_id'])
