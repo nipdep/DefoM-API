@@ -15,18 +15,24 @@ from pymongo.read_concern import ReadConcern
 # NS = os.environ.get('NS', None)
 # SECRET_KEY = os.environ.get('SECRET_KEY', None)
 
-def get_db():
+def get_db(uri=""):
+    global db
     # uri = f"mongodb+srv://defomAdmin:{os.environ.get('password')}@defomdb.osisk.mongodb.net"
-    uri = f"mongodb+srv://defomAdmin:pwd3202defom@defomdb.osisk.mongodb.net/?ssl=true&ssl_cert_reqs=CERT_NONE"
+    if uri == "":
+        # uri = f"mongodb://localhost:27017/?readPreference=primary&directConnection=true&ssl=false"
+        uri = f"mongodb+srv://defomAdmin:pwd3202defom@defomdb.osisk.mongodb.net/?ssl=true"
+    elif uri == "test":
+        uri = "mongodb://localhost:27017/?readPreference=primary&directConnection=true&ssl=false"
     # uri = f"mongodb+srv://defomAdmin:pwd3202defom@defomdb.osisk.mongodb.net/test?authSource=admin&replicaSet=atlas-d7vl2z-shard-0&readPreference=primary&appname=MongoDB%20Compass&ssl=true"
     client = MongoClient(uri)
-    db = client.defom
+    db = client['defom']
     print("connected to database")
     return db
 
 
 # Use LocalProxy to read the global db instance with just `db`
-db = get_db()
+# db = get_db()
+get_db()
 
 def get_user_by_name(name):
     return db.users.find_one({'username' : name})
@@ -211,7 +217,7 @@ def get_forest_areas(forest_id):
 
 def save_forest_areas(forest_id, data):
     try:
-        res = db.forests.update({"_id": forest_id}, {'$push' : {'sub_areas': data}})
+        res = db.forests.update_one({"_id": forest_id}, {'$push' : {'sub_areas': data}})
         return res
     except Exception as e:
         return e
