@@ -211,6 +211,7 @@ class ForestTileView(Resource):
             return None
         else:
             f_path = f"./defom/images/{ref_id}_{mode}.png"
+            # f_path = f"./images/{ref_id}_{mode}.png"
             if mode == "rgb":
                 prep_image = mode_map[mode](ch5_image)
                 plt.imsave(f_path, prep_image)
@@ -273,7 +274,8 @@ class ForestSubAreaHandler(Resource):
     def post(self, forest_id):
         try:
             post_data = request.get_json()
-            fr_id = ObjectId(post_data['forest_id'])
+            forest = expect(post_data['forest_id'], str, 'forest_id')
+            fr_id = ObjectId(forest)
             forest_data = {}
             forest_data['_id'] = ObjectId()
             forest_data['restriction_level'] = expect(post_data['restriction_level'], str, 'forest')
@@ -281,22 +283,16 @@ class ForestSubAreaHandler(Resource):
             save_forest_areas(fr_id, forest_data)
         except Exception as e:
             return make_response(jsonify({'error': str(e)}), 400)
-        
 
-    def update(self):
-        ...
-
-    def delete(self):
-        ...
 class ForestNameHandler(Resource):
     def get(self):
         try:
             forest_name_id = forest_names_and_ids();
             for doc in forest_name_id:
                 doc['_id'] = str(doc['_id'])
-            return forest_name_id,200
+            return jsonify(forest_name_id)
         except Exception as e:
-            return make_response(jsonify({ 'error': str(e)}),400)
+            return jsonify({ 'error': str(e)}),400
 
 class ForestIdHandler(Resource):
     def post(self):
@@ -305,7 +301,7 @@ class ForestIdHandler(Resource):
             username = expect(post_data['username'], str, "username")
             result = get_forest_id(username)
             result['forest_id'] = str(result['forest_id'])
-            return result,200
+            return jsonify(result)
         except Exception as e:
             return make_response(jsonify({'error': str(e)}),400)
 

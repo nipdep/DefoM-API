@@ -333,5 +333,9 @@ class Hello(Resource):
         dictinary = {
             "message" : "Hello World"
         }
-
         return jsonify(dictinary)
+
+class DBtest(Resource):
+    def get(self, name):
+        res= get_user_by_name(name)
+        return jsonify(res)
