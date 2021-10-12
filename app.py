@@ -29,7 +29,7 @@ from bson import json_util, ObjectId
 from datetime import datetime, timedelta
 
 
-from defom.api.users import Hello, User, RegisterUser, LoginUser, logoutUser, HandleForestAdmin, HandleForestOfficer, DeleteForestOfficer, UpdateForestOfficer, ForestOfficerSelfUpdate
+from defom.api.users import Hello, DBtest, RegisterUser, LoginUser, logoutUser, HandleForestAdmin, HandleForestOfficer, DeleteForestOfficer, UpdateForestOfficer, ForestOfficerSelfUpdate
 from defom.api.forests import RegisterForest, ForestTiles, ForestTileDetails, ForestTileView, ForestSubAreaHandler, ForestNameHandler, ForestIdHandler, ForestPageDetail, ForestImage, ForestPageSummary
 from defom.api.message import ThreadHandler, MessageHandler, CommentHandler, ThreadCreator, MessageCreator, CommentCreator
 from defom.api.scheduler import GetTiles, save_tiles_daily, make_class_inf_daily, MakeClassInf, set_latest_threat_daily, set_forest_view, set_mask_daily
@@ -76,8 +76,8 @@ app.config['BCRYPT'] = Bcrypt(app)
 # app.config['CLAIMS_LOADER'] = add_claims
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(days=30)
 
-api.add_resource(Fac, '/enter')
-# api.add_resource(User, '/user/<string:name>')
+
+# 
 api.add_resource(RegisterForest, '/forest/register')
 api.add_resource(RegisterUser, '/user/register')
 api.add_resource(LoginUser, '/user/login')
@@ -106,7 +106,9 @@ api.add_resource(CommentCreator, '/comment', methods=["POST"])
 
 api.add_resource(GetTiles, '/gettiles')  ## testing resources
 api.add_resource(MakeClassInf, '/classinf') ## testing resources
-api.add_resource(Hello, '/hello')
+api.add_resource(Hello, '/hello')  ## testing resources
+api.add_resource(Fac, '/enter')  ## testing resources
+api.add_resource(DBtest, '/users/<string:name>')  ## testing resources
 
 if __name__ == '__main__':
     app.run()
