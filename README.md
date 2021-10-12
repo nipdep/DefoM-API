@@ -24,3 +24,11 @@ backend API for the deforestation application
 | add comments to messages | @Dilaxsaswaran, @Thushan97 | running, todo |
 | pin location and forest in messages | @Dilaxsaswaran, @nipdep, @Thushan97 | todo, todo, todo |
 | deleted or close thread | @Dilaxsaswaran, @Thushan97 | todo, todo |
+
+* * *
+## Unittesting
+you have to first create clone of a MongoDB Atlas cloud servers Local instance:
+```
+mongodump --uri="mongodb+srv://defomAdmin:<password>@defomdb.osisk.mongodb.net" --db defom --out dump_defom | mongorestore dump_defom
+```
+*make sure you have installed [MongoDB ToolKit](https://docs.mongodb.com/database-tools/installation/installation-windows/) before run the above command.
