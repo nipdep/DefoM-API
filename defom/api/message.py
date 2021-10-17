@@ -72,7 +72,7 @@ class CommentCreator(Resource):
             thread_id = ObjectId(str(thr_id))
             sms_id = comment_data.pop('message_id', None)
             message_id = ObjectId(str(sms_id))
-            res = add_message(thread_id, message_id, comment_data)
+            res = add_comment(thread_id, message_id, comment_data)
             return jsonify(res)
         except Exception as e:
             return jsonify({'error': str(e)})

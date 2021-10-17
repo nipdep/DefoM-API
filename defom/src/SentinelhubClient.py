@@ -18,12 +18,6 @@ class SentilhubClient(object):
             self.config.sh_client_secret = "bGOodAi?zV/u}m,:_#]++qlUWIanEWI&{44Q{o6F"
             self.config.save()
 
-    def get_status(self):
-        pass
-
-    def get_json(self):
-        pass
-
     def split_forest_area(self, json_data):
         """
         INPUT:
@@ -36,11 +30,11 @@ class SentilhubClient(object):
         bbox_list = osm_splitter.get_bbox_list()
         bbox_coords_list = []
 
-        id = 0
+        ind = 0
         for bbox in bbox_list:
             bbox_poly = bbox.get_polygon()
-            bbox_coords_list.append({'tile_id' : id, 'bbox':(bbox_poly[0], bbox_poly[2]), 'infered_threat_class':[]})
-            id+=1
+            bbox_coords_list.append({'tile_id' : ind, 'bbox':(bbox_poly[0], bbox_poly[2]), 'infered_threat_class':[]})
+            ind+=1
 
         return bbox_coords_list
 
@@ -84,9 +78,6 @@ class SentilhubClient(object):
         image = request.get_data()[0]
         return image
 
-    def get_tile_batch():
-
-        pass
 
     def get_tile(self, bbox_coords, resolution, start_date, end_date):
         """
