@@ -475,6 +475,14 @@ def get_thread_data(thread_id):
         return e
 
 
+def get_all_thread_data():
+    try:
+        return list(db.forumThreads.find({}))
+    except Exception as e:
+        return e
+
+
+
 def create_thread(thread_data):
     try:
         return db.forumThreads.insert_one(thread_data)
@@ -489,7 +497,14 @@ def get_message_data(sms_id):
         return e
 
 
-def add_message(thread_id, sms_data):
+def get_thread_message_data(thread_id):
+    try:
+        return db.forumThreads.find_one({'_id':thread_id})
+    except Exception as e:
+        return e
+
+def add_message(thread_id,sms_data):
+
     try:
         db.forumThreads.update({'_id': thread_id}, {'$push': {'messages': sms_data}})
     except Exception as e:
