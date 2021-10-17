@@ -416,6 +416,13 @@ def get_thread_data(thread_id):
     except Exception as e:
         return e
 
+def get_all_thread_data():
+    try:
+        return dumps(db.forumThreads.find({}))
+    except Exception as e:
+        return e
+
+
 def create_thread(thread_data):
     try:
         return db.forumThreads.insert_one(thread_data)
@@ -425,6 +432,12 @@ def create_thread(thread_data):
 def get_message_data(sms_id):
     try:
         return db.forumThreads.find_one({'messages._id':sms_id}, {'messages':1})
+    except Exception as e:
+        return e
+
+def get_thread_message_data(thread_id):
+    try:
+        return db.forumThreads.find_one({'_id':thread_id})
     except Exception as e:
         return e
 
