@@ -10,7 +10,7 @@ from jwt import PyJWT
 
 from flask_jwt_extended import (
     jwt_required, create_access_token,
-    get_jwt_claims, jwt_required, create_access_token,   
+    get_jwt_claims, jwt_required
 )
 
 from flask import current_app, g
@@ -42,28 +42,6 @@ jwt = LocalProxy(get_jwt)
 bcrypt = LocalProxy(get_bcrypt)
 add_claims_to_access_token = LocalProxy(init_claims_loader)
 
-# class RegisterUser(Resource):
-#     def post(self):
-#         post_data = request.get_json()
-#         email = expect(post_data['email'], str, 'email')
-#         name = expect(post_data['name'], str, 'name')
-#         password = expect(post_data['password'], str, 'password')
-
-#         if len(password) < 8:
-#             return "Your password must be at least 8 characters.", 400
-
-#         if len(name) < 3:
-#             return "You must specify a name of at least 3 characters.", 400
-        
-#         existing_user = get_user(email)
-#         if existing_user is None:
-#             result = add_user(name, email, generate_password_hash(
-#                 password, method="sha256"))
-#             access_token = create_access_token(identity={"email" : email})
-#             # return make_response('Successfully Registered',200,{"x-auth-token" : access_token} )
-#             return {"access_token" : access_token}, 200
-#         return "This user already exists", 400
-
 class RegisterUser(Resource):
     
     def post(self):
@@ -74,6 +52,10 @@ class RegisterUser(Resource):
             password = expect(post_data['password'], str, 'password')
         except Exception as e:
             return make_response(jsonify({'error': str(e)}), 400)
+
+        # existing_user = get_user(email)
+        # if existing_user:
+        #     return "This user already in the system",400
 
         errors = {}
         if len(password) < 8:
@@ -93,6 +75,7 @@ class RegisterUser(Resource):
                 password=password.encode('utf8')).decode("utf-8"))
             response = add_citizen(name, email, bcrypt.generate_password_hash(
                 password=password.encode('utf8')).decode("utf-8"))
+            return make_response(jsonify({"status" : str(result.acknowledged)}), 200)
         except Exception as e:
                 return make_response(make_response(jsonify(e), 411))
        
@@ -147,15 +130,16 @@ class HandleForestAdmin(Resource):
         except Exception as e:
             return make_response(jsonify({'error': str(e)}), 400)
 
-        existing_user = get_user(email)
+        # existing_user = get_user(email)
 
-        if existing_user:
-            return "This forest admin already in the system",401
+        # if existing_user:
+        #     return "This forest admin already in the system",401
 
         try:
             res = add_forest_admin(username,  email, bcrypt.generate_password_hash(password=password.encode('utf8')).decode("utf-8"))
             # return make_response(jsonify({"status" : str(res.acknowledged)}), 200)
         except Exception as e:
+            
             return make_response(jsonify({'error': str(e)}), 411)
 
         try:
@@ -183,10 +167,10 @@ class HandleForestOfficer(Resource):
         except Exception as e:
             return make_response(jsonify({'error': str(e)}), 400)
 
-        existing_user = get_user(email)
+        # existing_user = get_user(email)
 
-        if existing_user:
-            return "This forest officer already in the system",401
+        # if existing_user:
+        #     return "This forest officer already in the system",401
 
         try:
             res = add_forest_officer(username,  email, bcrypt.generate_password_hash(password=password.encode('utf8')).decode("utf-8"))
@@ -230,8 +214,7 @@ class DeleteForestOfficer(Resource):
 
         try:
             result = delete_forest_officer(email)
-            print(result)
-            return "Forest Officer Deleted Successfully",200
+            return make_response(jsonify({"status" : str(result.acknowledged)}), 200)
         except Exception as e:
             return make_response(jsonify({'error': str(e)}),411)
 
@@ -247,8 +230,8 @@ class UpdateForestOfficer(Resource):
 
         existing_user = get_user(username)
 
-        if existing_user:
-            return "This forest officer already in the system",401
+        # if existing_user:
+        #     return "This forest officer already in the system",401
 
         try:
             result = update_forest_officer_in_users(old_username,username)
@@ -279,7 +262,7 @@ class ForestOfficerSelfUpdate(Resource):
 
        
 class logoutUser(Resource):
-    @jwt_required
+    # @jwt_required
     def post(self):
         try:
             post_data = request.get_json()
@@ -335,7 +318,7 @@ class Hello(Resource):
         }
         return jsonify(dictinary)
 
-class DBtest(Resource):
-    def get(self, name):
-        res= get_user_by_name(name)
-        return jsonify(res)
+# class DBtest(Resource):
+#     def get(self, name):
+#         res= get_user_by_name(name)
+#         return jsonify(res)
