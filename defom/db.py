@@ -127,7 +127,7 @@ def get_latest_forest_tiles(forest_id, date, state=1):
         return e
 
 
-def getTileAllDetails(forest_id, tile_id, date):
+def get_tile_all_details(forest_id, tile_id, date):
     try:
         tile_data = list(db.forestTiles.find({'forest_id': forest_id, 'tile_id': tile_id, "save_time": {
                          "$lte": date}}, {'image': 0, 'mask': 0}).sort("save_time", -1).limit(1))

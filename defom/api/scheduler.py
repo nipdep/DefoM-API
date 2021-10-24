@@ -12,7 +12,7 @@ from pymongo import UpdateOne
 from defom.db import (get_all_forest_tiles, save_forestTile, 
 get_forest_ids, get_latest_forest_tiles, forestTile_bulkWrite, 
 forests_bulkWrite, get_all_forests_tile_details, get_forests_pred_bnd, 
-get_forest_tile_inf, get_tile_view_id, forestPage_bulkWrite, getTileAllDetails)
+get_forest_tile_inf, get_tile_view_id, forestPage_bulkWrite, get_tile_all_details)
 from defom.src.SentinelhubClient import SentilhubClient
 from defom.src.DLClient import ClassiModel, MaskModel
 

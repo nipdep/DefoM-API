@@ -17,7 +17,7 @@
 # app.run()
 
 import os
-from flask import Flask, render_template
+from flask import Flask, render_template, Blueprint
 from flask.json import JSONEncoder
 from flask_bcrypt import Bcrypt
 from flask_cors import CORS
@@ -57,7 +57,7 @@ class Fac(Resource):
     # APP_DIR = os.path.abspath(os.path.dirname(__file__))
 
 app = Flask(__name__)
-csrf = CSRFProtect(app)
+# csrf = CSRFProtect(app)
 api = Api(app)
 CORS(app, resources={r"/*": {"origins": "*", "send_wildcard": "False"}})
 app.json_encoder = MongoJsonEncoder

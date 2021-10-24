@@ -12,7 +12,7 @@ import numpy as np
 
 from defom.api.utils import expect
 from defom.db import (get_tile_view, save_forest, save_forestTile, create_forest_page,
- get_latest_forest_tiles, get_user, get_forest_tiles, getTileAllDetails, get_tile_mask,
+ get_latest_forest_tiles, get_user, get_forest_tiles, get_tile_all_details, get_tile_mask,
  get_forest_areas, forest_names_and_ids, get_forest_id,get_forest_officer, save_forest_areas,
  get_forest_page_det, get_forest_entire_view, get_all_forest_det)
  
@@ -108,7 +108,7 @@ class ForestTileDetails(Resource):
         
         try:
             forest_id = ObjectId(forest_id)
-            tile_data = getTileAllDetails(forest_id, tile_id, dt_date)
+            tile_data = get_tile_all_details(forest_id, tile_id, dt_date)
             # mode_map = {'rgb' : self._get_RGB, 'nvdi': self._get_NDVI, 'savi' : self._get_SAVI, 'vari' : self._get_VARI, 'mndwi' : self._get_MNDWI, 'ndwi' : self._get_NDWI, 'fm' : self._get_FM}
             # image_list = [mode_map[mode](im) for im in image_list]
             # for i, img in enumerate(image_list):

@@ -10,7 +10,7 @@ from jwt import PyJWT
 
 from flask_jwt_extended import (
     jwt_required, create_access_token,
-    get_jwt_claims, jwt_required, create_access_token,   
+    get_jwt_claims, 
 )
 
 from flask import current_app, g
@@ -122,8 +122,9 @@ class LoginUser(Resource):
         }
 
         user = User(userdata)
+        return jsonify(create_access_token(user.to_json()), 200)
         jwt = create_access_token(user.to_json())
-
+        # return jsonify(jwt, 200)
         try:
             login_user(email, jwt)
             response_object = {
