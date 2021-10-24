@@ -1,4 +1,3 @@
-
 import unittest
 from unittest.mock import patch, Mock
 from mongomock import MongoClient
@@ -75,7 +74,6 @@ class ForestTest(unittest.TestCase):
         ## test backend validation of request
         sample_1 = self.sample_req.copy()
         sample_1.pop("name")
-        # print(sample_1)
         result = self.app.post('/forest/register',
                             headers={"Content-Type": "application/json"},
                             data=json.dumps(sample_1),
@@ -92,7 +90,6 @@ class ForestTest(unittest.TestCase):
                             data=json.dumps(sample_2),
                             charset='UTF-8')
         data = json.loads(result.get_data(as_text=True))
-        # print(data)
         self.assertEqual(result.status_code, 400)
         err_sms = data['error'].replace('\'', '')
         self.assertEqual("features", f'{err_sms}')
@@ -298,5 +295,5 @@ class ForestTest(unittest.TestCase):
 ##  - ForestImage()
 ##  - ForestTileView()
 
-# if __name__ == '__main__':
-#     unittest.main()
+if __name__ == '__main__':
+    unittest.main()

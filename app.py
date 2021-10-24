@@ -21,7 +21,7 @@ from flask import Flask, render_template, Blueprint
 from flask.json import JSONEncoder
 from flask_bcrypt import Bcrypt
 from flask_cors import CORS
-from flask_wtf.csrf import CSRFProtect
+# from flask_wtf.csrf import CSRFProtect
 from flask_jwt_extended import JWTManager
 
 from flask_restful import Resource, Api
@@ -30,7 +30,7 @@ from bson import json_util, ObjectId
 from datetime import datetime, timedelta
 
 
-from defom.api.users import Hello, DBtest, RegisterUser, LoginUser, logoutUser, HandleForestAdmin, HandleForestOfficer, DeleteForestOfficer, UpdateForestOfficer, ForestOfficerSelfUpdate
+from defom.api.users import Hello, RegisterUser, LoginUser, logoutUser, HandleForestAdmin, HandleForestOfficer, DeleteForestOfficer, UpdateForestOfficer, ForestOfficerSelfUpdate
 from defom.api.forests import RegisterForest, ForestTiles, ForestTileDetails, ForestTileView, ForestSubAreaHandler, ForestNameHandler, ForestIdHandler, ForestPageDetail, ForestImage, ForestPageSummary
 from defom.api.message import ThreadHandler, GetThreadMessageHandler, CommentHandler, MessageHandler, CommentHandler, ThreadCreator, MessageCreator, CommentCreator, GetThreadHandler, GetAllThreadHandler
 from defom.api.scheduler import GetTiles, save_tiles_daily, make_class_inf_daily, MakeClassInf, set_latest_threat_daily, set_forest_view, set_mask_daily
@@ -120,7 +120,7 @@ api.add_resource(GetTiles, '/gettiles')  ## testing resources
 api.add_resource(MakeClassInf, '/classinf') ## testing resources
 api.add_resource(Hello, '/hello')  ## testing resources
 api.add_resource(Fac, '/enter')  ## testing resources
-api.add_resource(DBtest, '/users/<string:name>')  ## testing resources
+# api.add_resource(DBtest, '/users/<string:name>')  ## testing resources
 
 if __name__ == '__main__':
     app.run()
