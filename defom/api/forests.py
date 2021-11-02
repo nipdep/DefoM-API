@@ -14,7 +14,7 @@ from defom.api.utils import expect
 from defom.db import (get_tile_view, save_forest, save_forestTile, create_forest_page,
  get_latest_forest_tiles, get_user, get_forest_tiles, getTileAllDetails, get_tile_mask,
  get_forest_areas, forest_names_and_ids, get_forest_id,get_forest_officer, save_forest_areas,
- get_forest_page_det, get_forest_entire_view, get_all_forest_det)
+ get_forest_page_det, get_forest_entire_view, get_all_forest_det, get_forest_id_by_forest_officer, get_forest_name, add_forest_details)
  
 
 from defom.src.SentinelhubClient import SentilhubClient
@@ -76,6 +76,7 @@ class RegisterForest(Resource):
 
         try:
             res = save_forest(forest_data)
+            print(res)
             # return make_response(jsonify({"status" : str(res.acknowledged)}), 200)
         except Exception as e:
             return make_response(jsonify({'error': str(e)}), 411)
@@ -323,7 +324,6 @@ class ForestPageDetail(Resource):
             return jsonify({'error': str(e)})
 
 class ForestImage(Resource):
-
     def get(self, forest_id):
         try:
             f_id = ObjectId(forest_id)
@@ -336,3 +336,34 @@ class ForestImage(Resource):
             return send_file(f_path)
         except Exception as e:
             return jsonify({'error': str(e)})
+
+class ForestName(Resource):
+    def get(self,username):
+        try:
+            forest_id = get_forest_id_by_forest_officer(username)
+            forest_name = get_forest_name(forest_id['forest_id'])
+            forest_details = {
+                "forest_name" : forest_name['forest_name'],
+                "forest_id" : str(forest_id['forest_id'])
+            }
+            return jsonify(forest_details)
+        except Exception as e:
+            return jsonify({'error': str(e)})   
+
+class ForestDetails(Resource):
+    def post(self):
+        try:
+            post_data = request.get_json()
+            forest_id = ObjectId(expect(post_data['forestId'], str, "forest_id"))
+            description = expect(post_data['description'], str, "description")
+            notification = expect(post_data['notification'], str, "notifiction")
+            result = add_forest_details(forest_id, description, notification)
+            response = {
+                "status" : True
+            }
+            return jsonify(response)
+        except Exception as e:
+            return make_response(jsonify({'error': str(e)}),400)
+
+
+

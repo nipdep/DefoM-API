@@ -53,9 +53,9 @@ class RegisterUser(Resource):
         except Exception as e:
             return make_response(jsonify({'error': str(e)}), 400)
 
-        # existing_user = get_user(email)
-        # if existing_user:
-        #     return "This user already in the system",400
+        existing_user = get_user(email)
+        if existing_user:
+            return "This user already in the system",400
 
         errors = {}
         if len(password) < 8:
@@ -130,10 +130,10 @@ class HandleForestAdmin(Resource):
         except Exception as e:
             return make_response(jsonify({'error': str(e)}), 400)
 
-        # existing_user = get_user(email)
+        existing_user = get_user(email)
 
-        # if existing_user:
-        #     return "This forest admin already in the system",401
+        if existing_user:
+            return "This forest admin already in the system",401
 
         try:
             res = add_forest_admin(username,  email, bcrypt.generate_password_hash(password=password.encode('utf8')).decode("utf-8"))
@@ -167,10 +167,10 @@ class HandleForestOfficer(Resource):
         except Exception as e:
             return make_response(jsonify({'error': str(e)}), 400)
 
-        # existing_user = get_user(email)
+        existing_user = get_user(email)
 
-        # if existing_user:
-        #     return "This forest officer already in the system",401
+        if existing_user:
+            return "This forest officer already in the system",401
 
         try:
             res = add_forest_officer(username,  email, bcrypt.generate_password_hash(password=password.encode('utf8')).decode("utf-8"))
@@ -230,8 +230,8 @@ class UpdateForestOfficer(Resource):
 
         existing_user = get_user(username)
 
-        # if existing_user:
-        #     return "This forest officer already in the system",401
+        if existing_user:
+            return "This forest officer already in the system",401
 
         try:
             result = update_forest_officer_in_users(old_username,username)

@@ -12,7 +12,7 @@ from datetime import datetime, timedelta
 
 
 from defom.api.users import Hello, RegisterUser, LoginUser, logoutUser, HandleForestAdmin, HandleForestOfficer, DeleteForestOfficer, UpdateForestOfficer, ForestOfficerSelfUpdate
-from defom.api.forests import RegisterForest, ForestTiles, ForestTileDetails, ForestTileView, ForestSubAreaHandler, ForestNameHandler, ForestIdHandler, ForestPageDetail, ForestImage, ForestPageSummary
+from defom.api.forests import RegisterForest, ForestTiles, ForestTileDetails, ForestTileView, ForestSubAreaHandler, ForestNameHandler, ForestIdHandler, ForestPageDetail, ForestImage, ForestPageSummary, ForestName
 from defom.api.message import ThreadHandler, MessageHandler, CommentHandler, ThreadCreator, MessageCreator, CommentCreator
 from defom.api.scheduler import GetTiles, save_tiles_daily, make_class_inf_daily, MakeClassInf, set_latest_threat_daily, set_forest_view, set_mask_daily
 
@@ -77,6 +77,7 @@ def create_api():
     api.add_resource(ForestPageSummary, '/forestpage')
     api.add_resource(ForestPageDetail, '/forestpage/d/<forest_id>')
     api.add_resource(ForestImage, '/forestpage/i/<forest_id>')
+    api.add_resource(ForestName, '/forest/get_forest_name')
 
     api.add_resource(ThreadCreator, '/thread/', methods=['POST'])
     api.add_resource(ThreadHandler, '/thread/<thread_id>', methods=['GET'])

@@ -21,6 +21,7 @@ def get_db(uri=""):
     if uri == "":
         # uri = f"mongodb://localhost:27017/?readPreference=primary&directConnection=true&ssl=false"
         uri = f"mongodb+srv://defomAdmin:pwd3202defom@defomdb.osisk.mongodb.net/?ssl=true"
+        # uri = f"mongodb://localhost:27017/?readPreference=primary&directConnection=true&ssl=false"
     elif uri == "test":
         uri = "mongodb://localhost:27017/?readPreference=primary&directConnection=true&ssl=false"
     # uri = f"mongodb+srv://defomAdmin:pwd3202defom@defomdb.osisk.mongodb.net/test?authSource=admin&replicaSet=atlas-d7vl2z-shard-0&readPreference=primary&appname=MongoDB%20Compass&ssl=true"
@@ -280,6 +281,35 @@ def get_all_forest_det():
         return forests
     except Exception as e:
         return e
+
+def get_forest_id_by_forest_officer(username):
+    try:
+        forest_id = db.forestOfficers.find_one({ "username" : username}, {"_id":0, "forest_id": 1})
+        return forest_id
+    except Exception as e:
+        return e
+
+def get_forest_name(forest_id):
+    try:
+        forest_name = db.forests.find_one({"_id" : forest_id}, {"_id":0, "forest_name": 1})
+        return forest_name
+    except Exception as e:
+        return e
+
+def add_forest_details(forest_id, description, notification):
+    try:
+        result = db.forestPage.update_one({'forest_id': forest_id},
+                                     {
+            "$set": {
+                'description': description,
+                'notification' : notification
+            }
+        }
+        )
+        return result
+    except Exception as e:
+        return e
+
 
 ################### USER realted function ###############################
 
