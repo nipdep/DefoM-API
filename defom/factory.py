@@ -11,9 +11,9 @@ from bson import json_util, ObjectId
 from datetime import datetime, timedelta
 
 
-from defom.api.users import Hello, RegisterUser, LoginUser, logoutUser, HandleForestAdmin, HandleForestOfficer, DeleteForestOfficer, UpdateForestOfficer, ForestOfficerSelfUpdate
+from defom.api.users import Hello, RegisterUser, LoginUser, logoutUser, HandleForestAdmin, HandleForestOfficer, DeleteForestOfficer, UpdateForestOfficer, ForestOfficerSelfUpdate, DBtest
 from defom.api.forests import RegisterForest, ForestTiles, ForestTileDetails, ForestTileView, ForestSubAreaHandler, ForestNameHandler, ForestIdHandler, ForestPageDetail, ForestImage, ForestPageSummary
-from defom.api.message import ThreadHandler, MessageHandler, CommentHandler, ThreadCreator, MessageCreator, CommentCreator
+from defom.api.message import ThreadHandler, MessageHandler, CommentHandler, ThreadCreator, MessageCreator, CommentCreator, GetThreadHandler, GetAllThreadHandler, GetThreadMessageHandler
 from defom.api.scheduler import GetTiles, save_tiles_daily, make_class_inf_daily, MakeClassInf, set_latest_threat_daily, set_forest_view, set_mask_daily
 
 import configparser
@@ -78,16 +78,19 @@ def create_api():
     api.add_resource(ForestPageDetail, '/forestpage/d/<forest_id>')
     api.add_resource(ForestImage, '/forestpage/i/<forest_id>')
 
-    api.add_resource(ThreadCreator, '/thread/', methods=['POST'])
-    api.add_resource(ThreadHandler, '/thread/<thread_id>', methods=['GET'])
-    api.add_resource(MessageCreator, '/thread/message', methods=['POST'])
-    api.add_resource(MessageHandler, '/thread/message/sms_id', methods=['GET'])
-    api.add_resource(CommentCreator, '/comment', methods=["POST"])
+    api.add_resource(MessageCreator, '/thread/message')
+    api.add_resource(CommentCreator, '/comment')
+    api.add_resource(ThreadHandler, '/thread')
+    api.add_resource(GetThreadHandler, '/thread/<thread_id>')
+    api.add_resource(GetAllThreadHandler, '/allThreads')
+    api.add_resource(MessageHandler, '/thread/message')
+    api.add_resource(GetThreadMessageHandler, '/thread/messages/<thread_id>')
+    api.add_resource(CommentHandler, '/comment')
 
     api.add_resource(GetTiles, '/gettiles')  ## testing resources
     api.add_resource(MakeClassInf, '/classinf') ## testing resources
     api.add_resource(Hello, '/hello')  ## testing resources
     api.add_resource(Fac, '/enter')  ## testing resources
-    # api.add_resource(DBtest, '/users/<string:name>')  ## testing resources
+    api.add_resource(DBtest, '/users/<string:name>')  ## testing resources
 
     return app

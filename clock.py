@@ -66,7 +66,7 @@ def input_creator(image1, image2):
     return inf_img
 
 ## daily satellite feed extraction
-@sched.scheduled_job('cron', hour=23, minute=59, name="get_forest_tiles")
+@sched.scheduled_job('cron', hour=8, minute=46, name="get_forest_tiles")
 def save_tiles_daily():
     dict_list = get_all_forest_tiles()
     sentinel_client = SentilhubClient()    ## Init sentinelHUb invoker
