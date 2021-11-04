@@ -53,11 +53,6 @@ class MessageHandler(Resource):
         except Exception as e:
             return jsonify({'error': str(e)})
 
-    def update(self):
-        ...   
-    
-    def delete(self):
-        ...
 
 class CommentCreator(Resource):
     def post(self):
@@ -73,19 +68,8 @@ class CommentCreator(Resource):
         except Exception as e:
             return jsonify({'error': str(e)})
 
-class CommentHandler(Resource):
-    def get(self):
-        ...  
-
-    def update(self):
-        ...   
-    
-    def delete(self):
-        ...
 
 class ThreadHandler(Resource):
-    def get(self, thread_id):
-        ...
     
     def post(self):
         try:
@@ -94,12 +78,6 @@ class ThreadHandler(Resource):
             return jsonify(res)
         except Exception as e:
             return jsonify({'error': str(e)})
-        
-    def update(self):
-        ...   
-    
-    def delete(self):
-        ...
 
 class GetThreadHandler(Resource):
     def get(self, thread_id):
@@ -109,15 +87,6 @@ class GetThreadHandler(Resource):
             return jsonify(res)
         except Exception as e:
             return jsonify({'error': str(e)})
-    
-    def post(self):
-        ...
-        
-    def update(self):
-        ...   
-    
-    def delete(self):
-        ...
 
 class GetAllThreadHandler(Resource):
     def get(self):
@@ -127,14 +96,6 @@ class GetAllThreadHandler(Resource):
         except Exception as e:
             return jsonify({'error': str(e)})
     
-    def post(self):
-        ...
-        
-    def update(self):
-        ...   
-    
-    def delete(self):
-        ...
 
 class GetThreadMessageHandler(Resource):
     def get(self, thread_id):
@@ -144,21 +105,9 @@ class GetThreadMessageHandler(Resource):
             return jsonify(res)
         except Exception as e:
             return jsonify({'error': str(e)})
-         
-    
-    def post(self):
-        ...
-
-    def update(self):
-        ...   
-    
-    def delete(self):
-        ...
 
 class CommentHandler(Resource):
-    def get(self):
-        ... 
-    
+
     def post(self):
         try:
             comment_data = request.get_json()
@@ -171,9 +120,3 @@ class CommentHandler(Resource):
             return jsonify(res)
         except Exception as e:
             return jsonify({'error': str(e)})
-
-    def update(self):
-        ...   
-    
-    def delete(self):
-        ...

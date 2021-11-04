@@ -34,7 +34,7 @@ class Inittest(unittest.TestCase):
     def test_successful_working(self):
         response = self.app.get('/enter')
         data = json.loads(response.get_data(as_text=True))
-        self.assertEqual('Hello, World', data['data'])
+        self.assertEqual("Hello, World", data['data'])
 
     def test_db_connectivity(self):
         response = self.app.get('/users/Nipun')

@@ -13,9 +13,9 @@ class SentilhubClient(object):
 
     def set_config(self):
         if not self.config.sh_client_id or not self.config.sh_client_secret:
-            self.config.instance_id = 'de111d9c-17c9-4d2c-acce-c5111d8a09d2'
-            self.config.sh_client_id = '82fada4f-0665-4507-ab18-e261040d8e81'
-            self.config.sh_client_secret = "bGOodAi?zV/u}m,:_#]++qlUWIanEWI&{44Q{o6F"
+            self.config.instance_id = '34a08c5f-1cf6-4348-86e5-79ff3461bbc2'
+            self.config.sh_client_id = '7dc75a0c-46bd-48f2-9719-da76511d5f01'
+            self.config.sh_client_secret = "ZT*ao<H2~_7P[?@PZY:]t}[,D[A5!b7A^0v_LQf-"
             self.config.save()
 
     def split_forest_area(self, json_data):

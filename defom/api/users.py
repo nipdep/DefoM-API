@@ -9,8 +9,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from jwt import PyJWT
 
 from flask_jwt_extended import (
-    jwt_required, create_access_token,
-    get_jwt_claims, jwt_required)
+    jwt_required, create_access_token, jwt_required)
 
 from flask import current_app, g
 from werkzeug.local import LocalProxy
@@ -40,6 +39,11 @@ def init_claims_loader():
 jwt = LocalProxy(get_jwt)
 bcrypt = LocalProxy(get_bcrypt)
 add_claims_to_access_token = LocalProxy(init_claims_loader)
+
+class DBtest(Resource):
+    def get(self, name):
+        res= get_user_by_name(name)
+        return jsonify(res)
 
 class RegisterUser(Resource):
     
