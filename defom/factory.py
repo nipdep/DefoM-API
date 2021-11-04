@@ -14,7 +14,7 @@ from datetime import datetime, timedelta
 
 from defom.api.users import Hello, RegisterUser, LoginUser, logoutUser, HandleForestAdmin, HandleForestOfficer, DeleteForestOfficer, UpdateForestOfficer, ForestOfficerSelfUpdate, DBtest
 from defom.api.forests import RegisterForest, ForestTiles, ForestTileDetails, ForestTileView, ForestSubAreaHandler, ForestNameHandler, ForestIdHandler, ForestPageDetail, ForestImage, ForestPageSummary, ForestName
-from defom.api.message import ThreadHandler, MessageHandler, CommentHandler, ThreadCreator, MessageCreator, CommentCreator, GetThreadHandler, GetAllThreadHandler, GetThreadMessageHandler
+from defom.api.message import ThreadHandler, MessageHandler, CommentHandler, ThreadCreator, MessageCreator, CommentCreator, GetThreadHandler, GetAllThreadHandler, GetThreadMessageHandler, ThreadDeletor, MessageDeletor
 
 from defom.api.scheduler import GetTiles, save_tiles_daily, make_class_inf_daily, MakeClassInf, set_latest_threat_daily, set_forest_view, set_mask_daily
 
@@ -89,6 +89,8 @@ def create_api():
     api.add_resource(MessageHandler, '/thread/message')
     api.add_resource(GetThreadMessageHandler, '/thread/messages/<thread_id>')
     api.add_resource(CommentHandler, '/comment')
+    api.add_resource(ThreadDeletor, '/thread/d/<thread_id>', methods=["GET"])
+    api.add_resource(MessageDeletor, '/thread/message/d/<thread_id>/<sms_id>', methods=["GET"])
 
     api.add_resource(GetTiles, '/gettiles')  ## testing resources
     api.add_resource(MakeClassInf, '/classinf') ## testing resources

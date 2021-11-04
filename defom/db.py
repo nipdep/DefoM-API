@@ -507,7 +507,7 @@ def get_thread_data(thread_id):
 
 def get_all_thread_data():
     try:
-        return list(db.forumThreads.find({}))
+        return list(db.forumThreads.find({'is_deleted':False}))
     except Exception as e:
         return e
 
@@ -530,6 +530,18 @@ def get_message_data(sms_id):
 def get_thread_message_data(thread_id):
     try:
         return db.forumThreads.find_one({'_id':thread_id})
+    except Exception as e:
+        return e
+
+def delete_thread(thread_id):
+    try:
+        db.forumThreads.update({'_id': thread_id}, {'$push': {'is_deleted': True}})
+    except Exception as e:
+        raise e
+
+def delete_message(thread_id, sms_id):
+    try:
+        return db.forumThreads.update({'_id': thread_id, 'message.id': sms_id}, {'$push': {'messages.is_deleted': True}})
     except Exception as e:
         return e
 
