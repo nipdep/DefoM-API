@@ -249,7 +249,6 @@ class ForestTiles(Resource):
             forest_id = str(doc['forest_id'])
         except Exception as e:
             return make_response(jsonify({'error': str(e)}), 400)   
-
         try:
             res = get_forest_tiles(ObjectId(forest_id), dt_date)
             if res != -1:
@@ -261,7 +260,7 @@ class ForestTiles(Resource):
                 res['location'] = res['location'][::-1]
                 return make_response(jsonify(res), 200)
             else:
-                return make_response(-1, 200)
+                return make_response(jsonify(-1), 200)
         except Exception as e:
             return make_response(jsonify({'error': str(e)}), 400) 
 

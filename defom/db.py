@@ -195,11 +195,11 @@ def get_forest_tiles(forest_id, date_dt):
         if acc_date != []:
             acc_tiles = db.forests.find_one(
                 {'_id': forest_id}, {'forest_name': 1, 'forest_tiles': 1, 'location': 1})
-            inf_list = list(db.forestTiles.find({'forest_id': forest_id, 'save_time': acc_date['save_time']}, {
+            inf_list = list(db.forestTiles.find({'forest_id': forest_id, 'save_time': acc_date[0]['save_time']}, {
                             'infered_threat_present': 1, '_id': 0}))
             for i, doc in enumerate(acc_tiles['forest_tiles']):
                 doc['infered_threat_present'] = True if inf_list[i] != {} else False
-            return acc_date
+            return acc_tiles
         else:
             return -1
         
