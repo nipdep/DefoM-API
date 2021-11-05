@@ -10,22 +10,34 @@ import numpy as np
 
 
 from defom.api.utils import expect
-from defom.db import get_thread_data, get_all_thread_data, create_thread, get_message_data, add_message, add_comment, get_thread_message_data, get_message_data
+from defom.db import (get_thread_data, get_all_thread_data, create_thread,
+ get_message_data, add_message, add_comment, get_thread_message_data, get_message_data,
+ delete_thread, delete_message)
 
 class ThreadCreator(Resource):
     def post(self):
         try:
             thread_data = request.get_json()
+            thread_data['is_deleted'] = False
             res = create_thread(thread_data)
             return jsonify(res)
         except Exception as e:
             return jsonify({'error': str(e)})
+
+class ThreadDeletor(Resource):
+    def get(self, thread_id):
+        try:
+            delete_thread(thread_id)
+        except Exception as e:
+            return jsonify({'error': str(e)})
+
 
 class MessageCreator(Resource):
     def post(self):
         try:
             message_data = request.get_json()
             message_data['_id'] = ObjectId()
+            message_data['is_deleted'] = False
             thr_id = message_data.pop('thread_id', None)
             thread_id = ObjectId(str(thr_id))
             res = add_message(thread_id, message_data)
@@ -53,6 +65,12 @@ class MessageHandler(Resource):
         except Exception as e:
             return jsonify({'error': str(e)})
 
+class MessageDeletor(Resource):
+    def get(self, thread_id, sms_id):
+        try:
+            delete_message(thread_id, sms_id)
+        except Exception as e:
+            return jsonify({'error': str(e)})
 
 class CommentCreator(Resource):
     def post(self):
@@ -120,3 +138,4 @@ class CommentHandler(Resource):
             return jsonify(res)
         except Exception as e:
             return jsonify({'error': str(e)})
+
