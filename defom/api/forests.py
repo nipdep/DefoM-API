@@ -252,13 +252,16 @@ class ForestTiles(Resource):
 
         try:
             res = get_forest_tiles(ObjectId(forest_id), dt_date)
-            ft = res['forest_tiles']
-            for tile in ft:
-                up, down = tile['bbox']
-                up_bbox = [up[::-1],down[::-1]]
-                tile['bbox'] = up_bbox
-            res['location'] = res['location'][::-1]
-            return make_response(jsonify(res), 200)
+            if res != -1:
+                ft = res['forest_tiles']
+                for tile in ft:
+                    up, down = tile['bbox']
+                    up_bbox = [up[::-1],down[::-1]]
+                    tile['bbox'] = up_bbox
+                res['location'] = res['location'][::-1]
+                return make_response(jsonify(res), 200)
+            else:
+                return make_response(-1, 200)
         except Exception as e:
             return make_response(jsonify({'error': str(e)}), 400) 
 
